@@ -33,3 +33,6 @@ logs/
 # Angular has its own .gitignore
 .theia/launch.json
 .theia/settings.json
+
+# jMonkey Assets
+assets/
