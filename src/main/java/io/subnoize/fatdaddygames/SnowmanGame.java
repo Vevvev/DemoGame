@@ -25,8 +25,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
-import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -36,7 +34,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		SnowmanGame app = new SnowmanGame();
 		app.start();
 	}
-	
+
 	private Random random = new Random(19970803);
 
 	private Boolean isRunning = false;
@@ -56,30 +54,14 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	private GhostControl golemShape;
 	private ParticleEmitter fire;
 	private ParticleEmitter bFire;
-
-	private Material wall_mat;
-	private Material stone_mat;
 	private Material floor_mat;
 
-	private static final Box box;
-	private static final Sphere sphere;
 	private static final Box floor;
-
-	private static final float brickLength = 0.48f;
-	private static final float brickWidth = 0.24f;
-	private static final float brickHeight = 0.12f;
 
 	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
 
 	static {
-		/** Initialize the cannon ball geometry */
-		sphere = new Sphere(32, 32, 0.4f, true, false);
-		sphere.setTextureMode(TextureMode.Projected);
-
-		box = new Box(brickLength, brickHeight, brickWidth);
-		box.scaleTextureCoordinates(new Vector2f(1f, .5f));
-
 		floor = new Box(10f, 0.1f, 5f);
 		floor.scaleTextureCoordinates(new Vector2f(3, 6));
 	}
@@ -144,7 +126,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		fire.getParticleInfluencer().setVelocityVariation(0.2f);
 		fire.setLocalTranslation(10, 10, 0);
 		rootNode.attachChild(fire);
-		
+
 		bFire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
 		Material mat_blue = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
 		mat_blue.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
@@ -173,12 +155,13 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		keyText = new BitmapText(guiFont);
 		keyText.setSize(guiFont.getCharSet().getRenderedSize()); // font size
 		keyText.setColor(ColorRGBA.White); // font color
-		keyText.setText("Space or up arrow to jump, P to play and pause, Backspace to reset, and ESC to quit."); // the text
+		keyText.setText("Space or up arrow to jump, P to play and pause, Backspace to reset, and ESC to quit."); // the
+																													// text
 		keyText.setLocalTranslation(0, settings.getHeight(), 0); // position
 		guiNode.attachChild(keyText);
-		
+
 		menuText = new BitmapText(guiFont);
-		menuText.setSize(guiFont.getCharSet().getRenderedSize()+10); // font size
+		menuText.setSize(guiFont.getCharSet().getRenderedSize() + 10); // font size
 		menuText.setColor(ColorRGBA.White); // font color
 		menuText.setText("Welcome to the Snowman Game! Press P to play!"); // the text
 		menuText.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0); // position
@@ -189,18 +172,6 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	}
 
 	public void initMaterials() {
-		wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-		TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
-		key.setGenerateMips(true);
-		Texture tex = assetManager.loadTexture(key);
-		wall_mat.setTexture("ColorMap", tex);
-
-		stone_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-		TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
-		key2.setGenerateMips(true);
-		Texture tex2 = assetManager.loadTexture(key2);
-		stone_mat.setTexture("ColorMap", tex2);
-
 		floor_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
 		key3.setGenerateMips(true);
@@ -278,15 +249,18 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 			} else if (score < 24) {
 				hudText.setColor(ColorRGBA.Orange);
 				obstacle.move(-0.12f, 0f, 0f);
-				fire.setLocalTranslation(obstacle.getLocalTranslation().getX()+0.4f, obstacle.getLocalTranslation().getY()+0.6f, obstacle.getLocalTranslation().getZ());
+				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
+						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			} else if (score <= 30 || score >= 30) {
 				hudText.setColor(ColorRGBA.Red);
 				obstacle.move(-0.14f, 0f, 0f);
-				fire.setLocalTranslation(obstacle.getLocalTranslation().getX()+0.4f, obstacle.getLocalTranslation().getY()+0.6f, obstacle.getLocalTranslation().getZ());
+				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
+						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			}
-			
+
 			if (obstacle.getWorldTransform().getTranslation().y >= 2) {
-				bFire.setLocalTranslation(obstacle.getLocalTranslation().getX(), obstacle.getLocalTranslation().getY()-1f, obstacle.getLocalTranslation().getZ());
+				bFire.setLocalTranslation(obstacle.getLocalTranslation().getX(),
+						obstacle.getLocalTranslation().getY() - 1f, obstacle.getLocalTranslation().getZ());
 			}
 
 			if (golemShape.getOverlappingObjects().contains(player)) {
@@ -297,14 +271,14 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 
 			if (obstacle.getWorldTransform().getTranslation().x <= -10) {
 
-				//int randomLocation = (Math.random() <= 0.5) ? 1 : 2;
-				
-				//if (obstacle.getWorldTransform().getTranslation().y < 2 && randomLocation == 2) {
-				//	randomLocation = 1;
-				//}
-				
-				int randomLocation = random.nextInt(100) + 1; 
-				
+				// int randomLocation = (Math.random() <= 0.5) ? 1 : 2;
+
+				// if (obstacle.getWorldTransform().getTranslation().y < 2 && randomLocation ==
+				// 2) {
+				// randomLocation = 1;
+				// }
+
+				int randomLocation = random.nextInt(100) + 1;
 
 				if (randomLocation < 80) {
 					obstacle.setLocalTranslation(10f, -1f, 0f);
