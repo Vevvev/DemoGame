@@ -94,8 +94,8 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		player.setFallSpeed(30);
 		player.setGravity(30);
 		player.setPhysicsLocation(playerDefault);
-		bulletAppState.getPhysicsSpace().add(player);
 		player.isContactResponse();
+		bulletAppState.getPhysicsSpace().add(player);
 
 		obstacle = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
 		obstacle.setLocalScale(0.19f);
@@ -298,3 +298,4 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 
 	}
 }
+
