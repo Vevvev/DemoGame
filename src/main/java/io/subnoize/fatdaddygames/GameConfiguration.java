@@ -1,5 +1,7 @@
 package io.subnoize.fatdaddygames;
 
+import java.util.Optional;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,152 +31,165 @@ import com.jme3.system.Timer;
 @Configuration
 public class GameConfiguration extends SimpleApplication {
 
+	private GameDirector gameDirector;
+	
+	public GameDirector getGameDirector() {
+		return gameDirector;
+	}
+
+	public void setGameDirector(GameDirector gameDirector) {
+		this.gameDirector = gameDirector;
+	}
+
 	@Override
 	public void simpleInitApp() {
 		// TODO Auto-generated method stub
-		
+		Optional.ofNullable(gameDirector).ifPresent(gd -> {
+			gd.init();
+		});
 	}
-	
+
+	@Override
+	public void simpleUpdate(float tpf) {
+
+		Optional.ofNullable(gameDirector).ifPresent(gd -> {
+			gd.update(tpf);
+		});
+	}
+
 	@Bean
 	FlyByCamera flyByCamera() {
 		return flyCam;
 	}
-	
+
 	@Bean
 	Node rootNode() {
 		return rootNode;
 	}
-	
+
 	@Bean
 	Node guiNode() {
 		return guiNode;
 	}
-	
+
 	@Bean
 	BitmapFont guiFont() {
 		return guiFont;
 	}
-	
+
 	@Bean
 	boolean showSettings() {
 		return showSettings;
 	}
-	
+
 	@Bean
 	BitmapText fpsText() {
 		return fpsText;
 	}
-	
+
 	@Bean
 	AssetManager assetManager() {
 		return assetManager;
 	}
 
-    @Bean
-    AudioRenderer audioRenderer() {
+	@Bean
+	AudioRenderer audioRenderer() {
 		return audioRenderer;
 	}
-    
-    @Bean
-    Renderer renderer() {
+
+	@Bean
+	Renderer renderer() {
 		return renderer;
 	}
 
-    @Bean
-    RenderManager renderManager() {
+	@Bean
+	RenderManager renderManager() {
 		return renderManager;
 	}
 
-    @Bean
-    ViewPort viewPort() {
+	@Bean
+	ViewPort viewPort() {
 		return viewPort;
 	}
 
-    @Bean
-    ViewPort guiViewPort() {
+	@Bean
+	ViewPort guiViewPort() {
 		return guiViewPort;
 	}
 
-    @Bean
-    JmeContext context() {
+	@Bean
+	JmeContext context() {
 		return context;
 	}
 
-    @Bean
-    AppSettings settings() {
+	@Bean
+	AppSettings settings() {
 		return settings;
 	}
-    
-    @Bean
-    Timer timer() {
+
+	@Bean
+	Timer timer() {
 		return timer;
 	}
-    
-    @Bean
-    Listener listener() {
+
+	@Bean
+	Listener listener() {
 		return listener;
 	}
 
-    @Bean
-    boolean inputEnabled() {
+	@Bean
+	boolean inputEnabled() {
 		return inputEnabled;
 	}
-    
-    @Bean
-    LostFocusBehavior lostFocusBehavior() {
+
+	@Bean
+	LostFocusBehavior lostFocusBehavior() {
 		return lostFocusBehavior;
 	}
-    
-    @Bean
-    float speed() {
+
+	@Bean
+	float speed() {
 		return speed;
 	}
-    
-    @Bean
-    boolean paused() {
+
+	@Bean
+	boolean paused() {
 		return paused;
 	}
-    
-    @Bean
-    MouseInput mouseInput() {
+
+	@Bean
+	MouseInput mouseInput() {
 		return mouseInput;
 	}
 
-    @Bean
-    KeyInput keyInput() {
+	@Bean
+	KeyInput keyInput() {
 		return keyInput;
 	}
 
-    @Bean
-    JoyInput joyInput() {
+	@Bean
+	JoyInput joyInput() {
 		return joyInput;
 	}
-    
-    @Bean
-    TouchInput touchInput() {
+
+	@Bean
+	TouchInput touchInput() {
 		return touchInput;
 	}
 
-    @Bean
-    InputManager inputManager() {
+	@Bean
+	InputManager inputManager() {
 		return inputManager;
 	}
 
-    @Bean
-    AppStateManager stateManager() {
+	@Bean
+	AppStateManager stateManager() {
 		return stateManager;
 	}
 
-    @Bean
-    AppProfiler prof() {
+	@Bean
+	AppProfiler prof() {
 		return prof;
 	}
-	
-	
-	@Override
-	public void simpleUpdate(float tpf) {
-		
-	}
-	
-	
+
 }
