@@ -49,6 +49,8 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	private Boolean isRunning = false;
 	private Boolean isLost = false;
 
+	@Autowired
+	private UserInterface userI;
 	BitmapText hudText;
 	BitmapText keyText;
 	BitmapText menuText;
@@ -126,26 +128,13 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		bFire = part.makeBlueFire(mat_blue);
 		rootNode.attachChild(bFire);
 
-		hudText = new BitmapText(guiFont);
-		hudText.setSize(guiFont.getCharSet().getRenderedSize()); // font size
-		hudText.setColor(ColorRGBA.White); // font color
-		hudText.setText("Your score: " + score); // the text
-		hudText.setLocalTranslation(settings.getWidth() / 2, settings.getHeight(), 0); // position
+		hudText = userI.initHud(guiFont, settings);
 		guiNode.attachChild(hudText);
 
-		keyText = new BitmapText(guiFont);
-		keyText.setSize(guiFont.getCharSet().getRenderedSize()); // font size
-		keyText.setColor(ColorRGBA.White); // font color
-		keyText.setText("Space or up arrow to jump, P to play and pause, Backspace to reset, and ESC to quit."); // the
-																													// text
-		keyText.setLocalTranslation(0, settings.getHeight(), 0); // position
+		keyText = userI.initKeys(guiFont, settings);
 		guiNode.attachChild(keyText);
 
-		menuText = new BitmapText(guiFont);
-		menuText.setSize(guiFont.getCharSet().getRenderedSize() + 10); // font size
-		menuText.setColor(ColorRGBA.White); // font color
-		menuText.setText("Welcome to the Snowman Game! Press P to play!"); // the text
-		menuText.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0); // position
+		menuText = userI.initMenu(guiFont, settings);
 		guiNode.attachChild(menuText);
 
 		initMaterials();
@@ -175,6 +164,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	private void setUpKeys() {
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_UP));
+		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_W));
 		inputManager.addMapping("Pause", new KeyTrigger(KeyInput.KEY_P));
 		inputManager.addMapping("Reset", new KeyTrigger(KeyInput.KEY_BACK));
 		inputManager.addListener(this, "Jump");
@@ -260,6 +250,10 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 				// }
 
 				int randomLocation = random.nextInt(100) + 1;
+				
+				if (score < 6) {
+					randomLocation = 1;
+				}
 
 				if (randomLocation < 80) {
 					obstacle.setLocalTranslation(10f, -1f, 0f);
