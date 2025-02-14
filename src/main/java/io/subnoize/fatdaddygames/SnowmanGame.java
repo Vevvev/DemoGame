@@ -2,17 +2,18 @@ package io.subnoize.fatdaddygames;
 
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.jme3.anim.AnimComposer;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -28,11 +29,19 @@ import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
+import jakarta.annotation.PostConstruct;
+
+@Component
 public class SnowmanGame extends SimpleApplication implements ActionListener {
 
-	public static void main(String args[]) {
+	/*public static void main(String args[]) {
 		SnowmanGame app = new SnowmanGame();
 		app.start();
+	}*/
+	
+	@PostConstruct
+	public void go() {
+		this.start();
 	}
 
 	private Random random = new Random(19970803);
@@ -40,15 +49,21 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	private Boolean isRunning = false;
 	private Boolean isLost = false;
 
+	@Autowired
+	private UserInterface userI;
 	BitmapText hudText;
 	BitmapText keyText;
 	BitmapText menuText;
 	private int score = 0;
 
+	@Autowired
+	private Snowman snowman;
 	private CharacterControl player;
 	private Geometry geom;
 	private BulletAppState bulletAppState;
 
+	@Autowired
+	private Particles part;
 	private AnimComposer control;
 	private Node obstacle;
 	private GhostControl golemShape;
@@ -88,14 +103,8 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 
 		rootNode.attachChild(geom);
 
-		CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1f, 0.7f, 1);
-		player = new CharacterControl(capsuleShape, 0.05f);
-		player.setJumpSpeed(15);
-		player.setFallSpeed(30);
-		player.setGravity(30);
-		player.setPhysicsLocation(playerDefault);
+		player = snowman.makeSnowman();
 		bulletAppState.getPhysicsSpace().add(player);
-		player.isContactResponse();
 
 		obstacle = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
 		obstacle.setLocalScale(0.19f);
@@ -108,63 +117,24 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		obstacle.addControl(golemShape);
 		bulletAppState.getPhysicsSpace().add(golemShape);
 		rootNode.attachChild(obstacle);
-
-		fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+		
 		Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
 		mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-		fire.setMaterial(mat_red);
-		fire.setImagesX(2);
-		fire.setImagesY(2); // 2x2 texture animation
-		fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f)); // red
-		fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-		fire.getParticleInfluencer().setInitialVelocity(new Vector3f(4, 0, 0));
-		fire.setStartSize(0.5f);
-		fire.setEndSize(0.1f);
-		fire.setGravity(0, 0, 0);
-		fire.setLowLife(0.3f);
-		fire.setHighLife(0.3f);
-		fire.getParticleInfluencer().setVelocityVariation(0.2f);
-		fire.setLocalTranslation(10, 10, 0);
+		fire = part.makeRedFire(mat_red);
 		rootNode.attachChild(fire);
-
-		bFire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+		
 		Material mat_blue = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
 		mat_blue.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-		bFire.setMaterial(mat_red);
-		bFire.setImagesX(2);
-		bFire.setImagesY(2);
-		bFire.setStartColor(ColorRGBA.Blue);
-		bFire.setEndColor(ColorRGBA.Cyan);
-		bFire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, -5, 0));
-		bFire.setStartSize(0.5f);
-		bFire.setEndSize(1.5f);
-		bFire.setGravity(0, 1, 0);
-		bFire.setLowLife(0.5f);
-		bFire.setHighLife(0.5f);
-		bFire.getParticleInfluencer().setVelocityVariation(0.1f);
-		bFire.setLocalTranslation(10, 10, 0);
+		bFire = part.makeBlueFire(mat_blue);
 		rootNode.attachChild(bFire);
 
-		hudText = new BitmapText(guiFont);
-		hudText.setSize(guiFont.getCharSet().getRenderedSize()); // font size
-		hudText.setColor(ColorRGBA.White); // font color
-		hudText.setText("Your score: " + score); // the text
-		hudText.setLocalTranslation(settings.getWidth() / 2, settings.getHeight(), 0); // position
+		hudText = userI.initHud(guiFont, settings);
 		guiNode.attachChild(hudText);
 
-		keyText = new BitmapText(guiFont);
-		keyText.setSize(guiFont.getCharSet().getRenderedSize()); // font size
-		keyText.setColor(ColorRGBA.White); // font color
-		keyText.setText("Space or up arrow to jump, P to play and pause, Backspace to reset, and ESC to quit."); // the
-																													// text
-		keyText.setLocalTranslation(0, settings.getHeight(), 0); // position
+		keyText = userI.initKeys(guiFont, settings);
 		guiNode.attachChild(keyText);
 
-		menuText = new BitmapText(guiFont);
-		menuText.setSize(guiFont.getCharSet().getRenderedSize() + 10); // font size
-		menuText.setColor(ColorRGBA.White); // font color
-		menuText.setText("Welcome to the Snowman Game! Press P to play!"); // the text
-		menuText.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0); // position
+		menuText = userI.initMenu(guiFont, settings);
 		guiNode.attachChild(menuText);
 
 		initMaterials();
@@ -194,6 +164,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	private void setUpKeys() {
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_UP));
+		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_W));
 		inputManager.addMapping("Pause", new KeyTrigger(KeyInput.KEY_P));
 		inputManager.addMapping("Reset", new KeyTrigger(KeyInput.KEY_BACK));
 		inputManager.addListener(this, "Jump");
@@ -279,6 +250,10 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 				// }
 
 				int randomLocation = random.nextInt(100) + 1;
+				
+				if (score < 6) {
+					randomLocation = 1;
+				}
 
 				if (randomLocation < 80) {
 					obstacle.setLocalTranslation(10f, -1f, 0f);
@@ -298,3 +273,4 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 
 	}
 }
+
