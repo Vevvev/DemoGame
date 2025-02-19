@@ -3,6 +3,7 @@ package io.subnoize.fatdaddygames;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.jme3.anim.AnimComposer;
@@ -200,9 +201,14 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		bFire.setLocalTranslation(10, 10, 0);
 		guiNode.attachChild(menuText);
 	}
+	
+	private float cal(float tpf, float actual) {
+		return tpf*actual;
+	}
 
 	@Override
 	public void simpleUpdate(float tpf) {
+
 		if (isRunning) {
 			player.setJumpSpeed(15);
 			player.setFallSpeed(30);
@@ -210,21 +216,21 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 			geom.setLocalTranslation(player.getPhysicsLocation());
 
 			if (score < 6) {
-				obstacle.move(-0.06f, 0f, 0f);
+				obstacle.move(tpf*-5f, 0f, 0f);
 			} else if (score < 12) {
 				hudText.setColor(ColorRGBA.Cyan);
-				obstacle.move(-0.08f, 0f, 0f);
+				obstacle.move(tpf*-8f, 0f, 0f);
 			} else if (score < 18) {
 				hudText.setColor(ColorRGBA.Yellow);
-				obstacle.move(-0.10f, 0f, 0f);
+				obstacle.move(tpf*-11f, 0f, 0f);
 			} else if (score < 24) {
 				hudText.setColor(ColorRGBA.Orange);
-				obstacle.move(-0.12f, 0f, 0f);
+				obstacle.move(tpf*-14f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			} else if (score <= 30 || score >= 30) {
 				hudText.setColor(ColorRGBA.Red);
-				obstacle.move(-0.14f, 0f, 0f);
+				obstacle.move(tpf*-17f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			}

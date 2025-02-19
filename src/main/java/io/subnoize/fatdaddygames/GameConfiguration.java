@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.jme3.app.LostFocusBehavior;
 import com.jme3.app.SimpleApplication;
@@ -29,6 +30,7 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.Timer;
 
 @Configuration
+@EnableScheduling
 public class GameConfiguration extends SimpleApplication {
 
 	private GameDirector gameDirector;
