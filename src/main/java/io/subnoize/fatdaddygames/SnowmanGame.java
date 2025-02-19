@@ -201,10 +201,6 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		bFire.setLocalTranslation(10, 10, 0);
 		guiNode.attachChild(menuText);
 	}
-	
-	private float cal(float tpf, float actual) {
-		return tpf*actual;
-	}
 
 	@Override
 	public void simpleUpdate(float tpf) {
