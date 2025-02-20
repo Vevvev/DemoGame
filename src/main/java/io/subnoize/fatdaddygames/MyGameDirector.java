@@ -1,13 +1,10 @@
 package io.subnoize.fatdaddygames;
 
-import java.util.Random;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import com.jme3.anim.AnimComposer;
-import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
@@ -15,7 +12,10 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
+import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.input.FlyByCamera;
+import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -27,45 +27,66 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
 import jakarta.annotation.PostConstruct;
 
-@Component
-public class SnowmanGame extends SimpleApplication implements ActionListener {
-
-	/*public static void main(String args[]) {
-		SnowmanGame app = new SnowmanGame();
-		app.start();
-	}*/
-	
-	@PostConstruct
-	public void go() {
-		this.start();
-	}
-
-	private Random random = new Random(19970803);
-
-	private Boolean isRunning = false;
-	private Boolean isLost = false;
+public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
+	private GameConfiguration configuration;
+	
+	@Autowired
+	private AppStateManager stateManager;
+	
+	@Autowired
+	private FlyByCamera flyCam;
+	
+	@Autowired 
+	private Node rootNode;
+	
+	@Autowired 
+	private Node guiNode;
+	
+	@Autowired 
+	private AssetManager assetManager;
+	
+	@Autowired 
+	private AppSettings settings;
+	
+	@Autowired 
+	private BitmapFont guiFont;
+	
+	@Autowired 
+	private InputManager inputManager;
+	
+	@Autowired
+	private boolean paused;
+	
+	private Boolean isLost = false;
+	private int score = 0;
+	
+	@Autowired
 	private UserInterface userI;
+	
+	@Autowired
+	private Particles part;
+	
+	@Autowired
+	private Snowman snowman;
+	
 	BitmapText hudText;
 	BitmapText keyText;
 	BitmapText menuText;
-	private int score = 0;
-
-	@Autowired
-	private Snowman snowman;
+	
 	private CharacterControl player;
 	private Geometry geom;
 	private BulletAppState bulletAppState;
-
-	@Autowired
-	private Particles part;
+	
 	private AnimComposer control;
+	
 	private Node obstacle;
 	private GhostControl golemShape;
 	private ParticleEmitter fire;
@@ -73,18 +94,28 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	private Material floor_mat;
 
 	private static final Box floor;
-
-	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
-	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
-
 	static {
 		floor = new Box(10f, 0.1f, 5f);
 		floor.scaleTextureCoordinates(new Vector2f(3, 6));
 	}
+	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
+	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
+	
+	@PostConstruct
+	public void start() {
+		configuration.setGameDirector(this);
+		configuration.start();
+	}
+	
+	@Override
+	public void update(float tf) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
-	public void simpleInitApp() {
-
+	public void init() {
+		// TODO Auto-generated method stub
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
@@ -141,7 +172,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		initMaterials();
 		initFloor();
 	}
-
+	
 	public void initMaterials() {
 		floor_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
@@ -174,23 +205,24 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 	}
 
 	@Override
-	public void onAction(String binding, boolean keyPressed, float arg2) {
+	public void onAction(String binding, boolean keyPressed, float tpf) {
+		// TODO Auto-generated method stub
 		if (binding.equals("Jump")) {
-			if (isRunning) {
+			if (!paused) {
 				player.jump();
 			}
 		}
 		if (binding.equals("Pause") && !keyPressed && isLost == false) {
-			isRunning = !isRunning;
+			paused = !paused;
 			guiNode.detachChild(menuText);
 		}
 		if (binding.equals("Reset")) {
 			gameReset();
 		}
 	}
-
+	
 	public void gameReset() {
-		isRunning = false;
+		paused = false;
 		isLost = false;
 		score = 0;
 		player.setPhysicsLocation(playerDefault);
@@ -202,77 +234,4 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		guiNode.attachChild(menuText);
 	}
 
-	@Override
-	public void simpleUpdate(float tpf) {
-
-		if (isRunning) {
-			player.setJumpSpeed(15);
-			player.setFallSpeed(30);
-
-			geom.setLocalTranslation(player.getPhysicsLocation());
-
-			if (score < 6) {
-				obstacle.move(tpf*-5f, 0f, 0f);
-			} else if (score < 12) {
-				hudText.setColor(ColorRGBA.Cyan);
-				obstacle.move(tpf*-8f, 0f, 0f);
-			} else if (score < 18) {
-				hudText.setColor(ColorRGBA.Yellow);
-				obstacle.move(tpf*-11f, 0f, 0f);
-			} else if (score < 24) {
-				hudText.setColor(ColorRGBA.Orange);
-				obstacle.move(tpf*-14f, 0f, 0f);
-				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
-						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
-			} else if (score <= 30 || score >= 30) {
-				hudText.setColor(ColorRGBA.Red);
-				obstacle.move(tpf*-17f, 0f, 0f);
-				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
-						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
-			}
-
-			if (obstacle.getWorldTransform().getTranslation().y >= 2) {
-				bFire.setLocalTranslation(obstacle.getLocalTranslation().getX(),
-						obstacle.getLocalTranslation().getY() - 1f, obstacle.getLocalTranslation().getZ());
-			}
-
-			if (golemShape.getOverlappingObjects().contains(player)) {
-				isRunning = false;
-				isLost = true;
-				hudText.setText("You lose with a score of " + score + ".");
-			}
-
-			if (obstacle.getWorldTransform().getTranslation().x <= -10) {
-
-				// int randomLocation = (Math.random() <= 0.5) ? 1 : 2;
-
-				// if (obstacle.getWorldTransform().getTranslation().y < 2 && randomLocation ==
-				// 2) {
-				// randomLocation = 1;
-				// }
-
-				int randomLocation = random.nextInt(100) + 1;
-				
-				if (score < 6) {
-					randomLocation = 1;
-				}
-
-				if (randomLocation < 80) {
-					obstacle.setLocalTranslation(10f, -1f, 0f);
-					control.setCurrentAction("Walk");
-				} else {
-					obstacle.setLocalTranslation(10f, 2.5f, 0f);
-					control.setCurrentAction("stand");
-				}
-
-				score++;
-				hudText.setText("Your score: " + score);
-			}
-		} else {
-			player.setJumpSpeed(0);
-			player.setFallSpeed(0);
-		}
-
-	}
 }
-
