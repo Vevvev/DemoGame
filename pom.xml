@@ -94,6 +94,13 @@
 			<artifactId>jme3-terrain</artifactId>
 			<version>${jme3_v}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jmonkeyengine/jme3-testdata -->
+		<dependency>
+			<groupId>org.jmonkeyengine</groupId>
+			<artifactId>jme3-testdata</artifactId>
+			<version>${jme3_v}</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>
