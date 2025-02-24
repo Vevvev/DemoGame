@@ -32,7 +32,7 @@ import com.jme3.texture.Texture.WrapMode;
 
 import jakarta.annotation.PostConstruct;
 
-@Component
+//@Component
 public class SnowmanGame extends SimpleApplication implements ActionListener {
 
 	/*public static void main(String args[]) {
@@ -40,7 +40,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		app.start();
 	}*/
 	
-	@PostConstruct
+	//@PostConstruct
 	public void go() {
 		this.start();
 	}

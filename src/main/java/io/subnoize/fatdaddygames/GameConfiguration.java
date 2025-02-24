@@ -20,6 +20,7 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.controls.ActionListener;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -29,18 +30,23 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.Timer;
 
+import jakarta.annotation.PostConstruct;
+
 @Configuration
 @EnableScheduling
-public class GameConfiguration extends SimpleApplication {
+public class GameConfiguration extends SimpleApplication implements ActionListener {
 
 	private GameDirector gameDirector;
 	
-	public GameDirector getGameDirector() {
-		return gameDirector;
+	@PostConstruct
+	public void init() {
+		this.start();
 	}
-
-	public void setGameDirector(GameDirector gameDirector) {
-		this.gameDirector = gameDirector;
+	
+	@Bean
+	GameDirector getGameDirector() {
+		gameDirector = new MyGameDirector();
+		return gameDirector;
 	}
 
 	@Override
@@ -53,13 +59,11 @@ public class GameConfiguration extends SimpleApplication {
 
 	@Override
 	public void simpleUpdate(float tpf) {
-
 		Optional.ofNullable(gameDirector).ifPresent(gd -> {
 			gd.update(tpf);
 		});
 	}
 
-	@Bean
 	FlyByCamera flyByCamera() {
 		return flyCam;
 	}
@@ -74,7 +78,6 @@ public class GameConfiguration extends SimpleApplication {
 		return guiNode;
 	}
 
-	@Bean
 	BitmapFont guiFont() {
 		return guiFont;
 	}
@@ -89,7 +92,6 @@ public class GameConfiguration extends SimpleApplication {
 		return fpsText;
 	}
 
-	@Bean
 	AssetManager assetManager() {
 		return assetManager;
 	}
@@ -179,7 +181,6 @@ public class GameConfiguration extends SimpleApplication {
 		return touchInput;
 	}
 
-	@Bean
 	InputManager inputManager() {
 		return inputManager;
 	}
@@ -192,6 +193,13 @@ public class GameConfiguration extends SimpleApplication {
 	@Bean
 	AppProfiler prof() {
 		return prof;
+	}
+
+	@Override
+	public void onAction(String name, boolean isPressed, float tpf) {
+		Optional.ofNullable(gameDirector).ifPresent(gd -> {
+			((ActionListener)gd).onAction(name, isPressed, tpf);
+		});
 	}
 
 }
