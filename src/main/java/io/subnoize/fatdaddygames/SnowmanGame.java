@@ -3,8 +3,6 @@ package io.subnoize.fatdaddygames;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.app.SimpleApplication;
@@ -30,17 +28,15 @@ import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
-import jakarta.annotation.PostConstruct;
-
 //@Component
 public class SnowmanGame extends SimpleApplication implements ActionListener {
 
-	/*public static void main(String args[]) {
-		SnowmanGame app = new SnowmanGame();
-		app.start();
-	}*/
-	
-	//@PostConstruct
+	/*
+	 * public static void main(String args[]) { SnowmanGame app = new SnowmanGame();
+	 * app.start(); }
+	 */
+
+	// @PostConstruct
 	public void go() {
 		this.start();
 	}
@@ -118,12 +114,12 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		obstacle.addControl(golemShape);
 		bulletAppState.getPhysicsSpace().add(golemShape);
 		rootNode.attachChild(obstacle);
-		
+
 		Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
 		mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
 		fire = part.makeRedFire(mat_red);
 		rootNode.attachChild(fire);
-		
+
 		Material mat_blue = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
 		mat_blue.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
 		bFire = part.makeBlueFire(mat_blue);
@@ -212,21 +208,21 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 			geom.setLocalTranslation(player.getPhysicsLocation());
 
 			if (score < 6) {
-				obstacle.move(tpf*-5f, 0f, 0f);
+				obstacle.move(tpf * -5f, 0f, 0f);
 			} else if (score < 12) {
 				hudText.setColor(ColorRGBA.Cyan);
-				obstacle.move(tpf*-8f, 0f, 0f);
+				obstacle.move(tpf * -8f, 0f, 0f);
 			} else if (score < 18) {
 				hudText.setColor(ColorRGBA.Yellow);
-				obstacle.move(tpf*-11f, 0f, 0f);
+				obstacle.move(tpf * -11f, 0f, 0f);
 			} else if (score < 24) {
 				hudText.setColor(ColorRGBA.Orange);
-				obstacle.move(tpf*-14f, 0f, 0f);
+				obstacle.move(tpf * -14f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			} else if (score <= 30 || score >= 30) {
 				hudText.setColor(ColorRGBA.Red);
-				obstacle.move(tpf*-17f, 0f, 0f);
+				obstacle.move(tpf * -17f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			}
@@ -252,7 +248,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 				// }
 
 				int randomLocation = random.nextInt(100) + 1;
-				
+
 				if (score < 6) {
 					randomLocation = 1;
 				}
@@ -275,4 +271,3 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 
 	}
 }
-

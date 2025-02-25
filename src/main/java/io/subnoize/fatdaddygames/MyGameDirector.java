@@ -3,12 +3,9 @@ package io.subnoize.fatdaddygames;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
@@ -16,10 +13,7 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
-import com.jme3.input.FlyByCamera;
-import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -35,53 +29,51 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
-
 public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private GameConfiguration configuration;
-	
+
 	@Autowired
 	private AppStateManager stateManager;
-	
-	@Autowired 
+
+	@Autowired
 	private Node rootNode;
-	
-	@Autowired 
+
+	@Autowired
 	private Node guiNode;
-	
+
 	@Autowired
 	private AppSettings settings;
-	
-	@Autowired
-	private boolean paused = true;
-	
+
 	private Boolean isLost = false;
 	private int score = 0;
-	
+
 	@Autowired
 	private UserInterface userI;
-	
+
 	@Autowired
 	private Particles part;
-	
+
 	@Autowired
 	private Snowman snowman;
 
 	private Random random = new Random(19970803);
 
 	private Boolean isRunning = false;
-	
+
 	BitmapText hudText;
 	BitmapText keyText;
 	BitmapText menuText;
-	
+
 	private CharacterControl player;
 	private Geometry geom;
 	private BulletAppState bulletAppState;
-	
+
 	private AnimComposer control;
-	
+
+	@Autowired
+	private Obstacle ob;
 	private Node obstacle;
 	private GhostControl golemShape;
 	private ParticleEmitter fire;
@@ -95,13 +87,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	}
 	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
-	
-	//@PostConstruct
+
+	// @PostConstruct
 	public void start() {
-		//configuration.setGameDirector(this);
-		//configuration.start();
+		// configuration.setGameDirector(this);
+		// configuration.start();
 	}
-	
+
 	@Override
 	public void update(float tpf) {
 		if (isRunning) {
@@ -111,21 +103,21 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			geom.setLocalTranslation(player.getPhysicsLocation());
 
 			if (score < 6) {
-				obstacle.move(tpf*-5f, 0f, 0f);
+				obstacle.move(tpf * -6f, 0f, 0f);
 			} else if (score < 12) {
 				hudText.setColor(ColorRGBA.Cyan);
-				obstacle.move(tpf*-8f, 0f, 0f);
+				obstacle.move(tpf * -9f, 0f, 0f);
 			} else if (score < 18) {
 				hudText.setColor(ColorRGBA.Yellow);
-				obstacle.move(tpf*-11f, 0f, 0f);
+				obstacle.move(tpf * -12f, 0f, 0f);
 			} else if (score < 24) {
 				hudText.setColor(ColorRGBA.Orange);
-				obstacle.move(tpf*-14f, 0f, 0f);
+				obstacle.move(tpf * -15f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			} else if (score <= 30 || score >= 30) {
 				hudText.setColor(ColorRGBA.Red);
-				obstacle.move(tpf*-17f, 0f, 0f);
+				obstacle.move(tpf * -18f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
 			}
@@ -151,7 +143,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				// }
 
 				int randomLocation = random.nextInt(100) + 1;
-				
+
 				if (score < 6) {
 					randomLocation = 1;
 				}
@@ -198,10 +190,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		player = snowman.makeSnowman();
 		bulletAppState.getPhysicsSpace().add(player);
 
-		obstacle = (Node) configuration.assetManager().loadModel("Models/Oto/Oto.mesh.xml");
-		obstacle.setLocalScale(0.19f);
-		obstacle.setLocalTranslation(obstacleDefault);
-		obstacle.rotate(0, -1.5f, 0);
+		obstacle = ob.makeObstacle();
 		control = obstacle.getControl(AnimComposer.class);
 		control.setCurrentAction("Walk");
 
@@ -209,12 +198,12 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		obstacle.addControl(golemShape);
 		bulletAppState.getPhysicsSpace().add(golemShape);
 		rootNode.attachChild(obstacle);
-		
+
 		Material mat_red = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
 		mat_red.setTexture("Texture", configuration.assetManager().loadTexture("Effects/Explosion/flame.png"));
 		fire = part.makeRedFire(mat_red);
 		rootNode.attachChild(fire);
-		
+
 		Material mat_blue = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
 		mat_blue.setTexture("Texture", configuration.assetManager().loadTexture("Effects/Explosion/flame.png"));
 		bFire = part.makeBlueFire(mat_blue);
@@ -232,7 +221,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		initMaterials();
 		initFloor();
 	}
-	
+
 	public void initMaterials() {
 		floor_mat = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
@@ -266,7 +255,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Override
 	public void onAction(String binding, boolean keyPressed, float tpf) {
-		
+
 		if (binding.equals("Jump")) {
 			if (isRunning) {
 				player.jump();
@@ -276,14 +265,14 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			isRunning = !isRunning;
 			guiNode.detachChild(menuText);
 		}
-		
+
 		if (binding.equals("Reset")) {
 			gameReset();
 		}
 	}
-	
+
 	public void gameReset() {
-		paused = false;
+		isRunning = false;
 		isLost = false;
 		score = 0;
 		player.setPhysicsLocation(playerDefault);
