@@ -28,6 +28,10 @@ import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
+import io.subnoize.fatdaddygames.model.Particles;
+import io.subnoize.fatdaddygames.model.Snowman;
+import io.subnoize.fatdaddygames.model.UserInterface;
+
 //@Component
 public class SnowmanGame extends SimpleApplication implements ActionListener {
 
