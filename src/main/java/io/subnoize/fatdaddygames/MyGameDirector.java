@@ -25,7 +25,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -49,9 +48,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private Node guiNode;
-
-	@Autowired
-	private AppSettings settings;
 
 	private Boolean isLost = false;
 	private int score = 0;
@@ -185,13 +181,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
 		rootNode.addLight(dl);
 
-		Box b = new Box(1, 1, 1);
-		geom = new Geometry("Player", b);
-
-		Material mat = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-		mat.setColor("Color", ColorRGBA.Blue);
-		geom.setMaterial(mat);
-
+		geom = snowman.makeSnowmanBody();
 		rootNode.attachChild(geom);
 
 		player = snowman.makeSnowman();
@@ -206,23 +196,19 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		bulletAppState.getPhysicsSpace().add(golemShape);
 		rootNode.attachChild(obstacle);
 
-		Material mat_red = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
-		mat_red.setTexture("Texture", configuration.assetManager().loadTexture("Effects/Explosion/flame.png"));
-		fire = part.makeRedFire(mat_red);
+		fire = part.makeRedFire();
 		rootNode.attachChild(fire);
 
-		Material mat_blue = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
-		mat_blue.setTexture("Texture", configuration.assetManager().loadTexture("Effects/Explosion/flame.png"));
-		bFire = part.makeBlueFire(mat_blue);
+		bFire = part.makeBlueFire();
 		rootNode.attachChild(bFire);
 
-		hudText = userI.initHud(configuration.guiFont(), settings);
+		hudText = userI.initHud();
 		guiNode.attachChild(hudText);
 
-		keyText = userI.initKeys(configuration.guiFont(), settings);
+		keyText = userI.initKeys();
 		guiNode.attachChild(keyText);
 
-		menuText = userI.initMenu(configuration.guiFont(), settings);
+		menuText = userI.initMenu();
 		guiNode.attachChild(menuText);
 
 		initMaterials();
