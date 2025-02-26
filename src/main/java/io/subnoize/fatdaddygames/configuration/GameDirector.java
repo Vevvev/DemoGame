@@ -1,4 +1,4 @@
-package io.subnoize.fatdaddygames;
+package io.subnoize.fatdaddygames.configuration;
 
 public interface GameDirector {
 

@@ -29,6 +29,13 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
+import io.subnoize.fatdaddygames.configuration.GameConfiguration;
+import io.subnoize.fatdaddygames.configuration.GameDirector;
+import io.subnoize.fatdaddygames.model.Obstacle;
+import io.subnoize.fatdaddygames.model.Particles;
+import io.subnoize.fatdaddygames.model.Snowman;
+import io.subnoize.fatdaddygames.model.UserInterface;
+
 public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired

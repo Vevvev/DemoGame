@@ -1,10 +1,12 @@
-package io.subnoize.fatdaddygames;
+package io.subnoize.fatdaddygames.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+
+import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 
 @Component
 public class Obstacle {

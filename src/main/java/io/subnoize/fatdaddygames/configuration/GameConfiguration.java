@@ -1,4 +1,4 @@
-package io.subnoize.fatdaddygames;
+package io.subnoize.fatdaddygames.configuration;
 
 import java.util.Optional;
 
@@ -30,6 +30,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.Timer;
 
+import io.subnoize.fatdaddygames.MyGameDirector;
 import jakarta.annotation.PostConstruct;
 
 @Configuration
@@ -78,7 +79,7 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 		return guiNode;
 	}
 
-	BitmapFont guiFont() {
+	public BitmapFont guiFont() {
 		return guiFont;
 	}
 
@@ -92,7 +93,7 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 		return fpsText;
 	}
 
-	AssetManager assetManager() {
+	public AssetManager assetManager() {
 		return assetManager;
 	}
 
@@ -181,7 +182,7 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 		return touchInput;
 	}
 
-	InputManager inputManager() {
+	public InputManager inputManager() {
 		return inputManager;
 	}
 

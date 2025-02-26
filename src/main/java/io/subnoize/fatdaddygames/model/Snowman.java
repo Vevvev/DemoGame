@@ -1,4 +1,4 @@
-package io.subnoize.fatdaddygames;
+package io.subnoize.fatdaddygames.model;
 
 import org.springframework.stereotype.Component;
 
