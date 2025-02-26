@@ -1,5 +1,6 @@
 package io.subnoize.fatdaddygames.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jme3.effect.ParticleEmitter;
@@ -8,10 +9,18 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 
+import io.subnoize.fatdaddygames.configuration.GameConfiguration;
+
 @Component
 public class Particles {
+	
+	@Autowired
+	private GameConfiguration configuration;
 
-	public ParticleEmitter makeBlueFire(Material mat_blue) {
+	public ParticleEmitter makeBlueFire() {
+		
+		Material mat_blue = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
+		mat_blue.setTexture("Texture", configuration.assetManager().loadTexture("Effects/Explosion/flame.png"));
 		
 		ParticleEmitter bFire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
 		bFire.setMaterial(mat_blue);
@@ -31,7 +40,10 @@ public class Particles {
 		return bFire;
 	}
 	
-	public ParticleEmitter makeRedFire(Material mat_red) {
+	public ParticleEmitter makeRedFire() {
+		
+		Material mat_red = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
+		mat_red.setTexture("Texture", configuration.assetManager().loadTexture("Effects/Explosion/flame.png"));
 		
 		ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
 		fire.setMaterial(mat_red);

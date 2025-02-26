@@ -95,13 +95,7 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
 		rootNode.addLight(dl);
 
-		Box b = new Box(1, 1, 1);
-		geom = new Geometry("Player", b);
-
-		Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-		mat.setColor("Color", ColorRGBA.Blue);
-		geom.setMaterial(mat);
-
+		geom = snowman.makeSnowmanBody();
 		rootNode.attachChild(geom);
 
 		player = snowman.makeSnowman();
@@ -119,23 +113,19 @@ public class SnowmanGame extends SimpleApplication implements ActionListener {
 		bulletAppState.getPhysicsSpace().add(golemShape);
 		rootNode.attachChild(obstacle);
 
-		Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-		mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-		fire = part.makeRedFire(mat_red);
+		fire = part.makeRedFire();
 		rootNode.attachChild(fire);
 
-		Material mat_blue = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-		mat_blue.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-		bFire = part.makeBlueFire(mat_blue);
+		bFire = part.makeBlueFire();
 		rootNode.attachChild(bFire);
 
-		hudText = userI.initHud(guiFont, settings);
+		hudText = userI.initHud();
 		guiNode.attachChild(hudText);
 
-		keyText = userI.initKeys(guiFont, settings);
+		keyText = userI.initKeys();
 		guiNode.attachChild(keyText);
 
-		menuText = userI.initMenu(guiFont, settings);
+		menuText = userI.initMenu();
 		guiNode.attachChild(menuText);
 
 		initMaterials();
