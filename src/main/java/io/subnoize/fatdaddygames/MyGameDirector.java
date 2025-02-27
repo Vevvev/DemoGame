@@ -6,30 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.GhostControl;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
+import io.subnoize.fatdaddygames.model.Floor;
 import io.subnoize.fatdaddygames.model.Obstacle;
 import io.subnoize.fatdaddygames.model.Particles;
 import io.subnoize.fatdaddygames.model.Snowman;
@@ -81,13 +75,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	private GhostControl golemShape;
 	private ParticleEmitter fire;
 	private ParticleEmitter bFire;
-	private Material floor_mat;
+	@Autowired
+	private Floor floor;
 
-	private static final Box floor;
-	static {
-		floor = new Box(10f, 0.1f, 5f);
-		floor.scaleTextureCoordinates(new Vector2f(3, 6));
-	}
 	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
 
@@ -105,20 +95,20 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 			geom.setLocalTranslation(player.getPhysicsLocation());
 
-			if (score < 6) {
+			if (score < 5) {
 				obstacle.move(tpf * -6f, 0f, 0f);
-			} else if (score < 12) {
+			} else if (score < 10) {
 				hudText.setColor(ColorRGBA.Cyan);
 				obstacle.move(tpf * -9f, 0f, 0f);
-			} else if (score < 18) {
+			} else if (score < 16) {
 				hudText.setColor(ColorRGBA.Yellow);
 				obstacle.move(tpf * -12f, 0f, 0f);
-			} else if (score < 24) {
+			} else if (score < 23) {
 				hudText.setColor(ColorRGBA.Orange);
 				obstacle.move(tpf * -15f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
 						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
-			} else if (score <= 30 || score >= 30) {
+			} else if (score <= 31 || score >= 30) {
 				hudText.setColor(ColorRGBA.Red);
 				obstacle.move(tpf * -18f, 0f, 0f);
 				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
@@ -211,28 +201,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		menuText = userI.initMenu();
 		guiNode.attachChild(menuText);
 
-		initMaterials();
-		initFloor();
-	}
-
-	public void initMaterials() {
-		floor_mat = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-		TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
-		key3.setGenerateMips(true);
-		Texture tex3 = configuration.assetManager().loadTexture(key3);
-		tex3.setWrap(WrapMode.Repeat);
-		floor_mat.setTexture("ColorMap", tex3);
-	}
-
-	public void initFloor() {
-		Geometry floor_geo = new Geometry("Floor", floor);
-		floor_geo.setMaterial(floor_mat);
-		floor_geo.setLocalTranslation(0, -2.1f, 0);
-		this.rootNode.attachChild(floor_geo);
-		/* Make the floor physical with mass 0.0f! */
-		RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
-		floor_geo.addControl(floor_phy);
-		bulletAppState.getPhysicsSpace().add(floor_phy);
+		floor.initFloor(bulletAppState);
 	}
 
 	private void setUpKeys() {
