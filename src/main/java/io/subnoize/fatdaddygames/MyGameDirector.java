@@ -53,7 +53,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private Snowman snowman;
-	
+
 	@Autowired
 	private GameControls controls;
 
@@ -199,8 +199,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 		floor.initFloor(bulletAppState);
 	}
-
-	
 
 	@Override
 	public void onAction(String binding, boolean keyPressed, float tpf) {
