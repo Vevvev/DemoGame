@@ -12,9 +12,7 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.GhostControl;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.font.BitmapText;
-import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -23,6 +21,7 @@ import com.jme3.scene.Node;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
+import io.subnoize.fatdaddygames.controls.GameControls;
 import io.subnoize.fatdaddygames.model.Floor;
 import io.subnoize.fatdaddygames.model.Obstacle;
 import io.subnoize.fatdaddygames.model.Particles;
@@ -55,6 +54,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	@Autowired
 	private Snowman snowman;
 
+	@Autowired
+	private GameControls controls;
+
 	private Random random = new Random(19970803);
 
 	private Boolean isRunning = false;
@@ -80,12 +82,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
-
-	// @PostConstruct
-	public void start() {
-		// configuration.setGameDirector(this);
-		// configuration.start();
-	}
 
 	@Override
 	public void update(float tpf) {
@@ -165,7 +161,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		stateManager.attach(bulletAppState);
 
 		configuration.getFlyByCamera().setEnabled(false);
-		setUpKeys();
+		controls.setUpKeys();
 
 		DirectionalLight dl = new DirectionalLight();
 		dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
@@ -202,17 +198,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		guiNode.attachChild(menuText);
 
 		floor.initFloor(bulletAppState);
-	}
-
-	private void setUpKeys() {
-		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
-		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_UP));
-		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_W));
-		configuration.inputManager().addMapping("Pause", new KeyTrigger(KeyInput.KEY_P));
-		configuration.inputManager().addMapping("Reset", new KeyTrigger(KeyInput.KEY_BACK));
-		configuration.inputManager().addListener(this, "Jump");
-		configuration.inputManager().addListener(this, "Pause");
-		configuration.inputManager().addListener(this, "Reset");
 	}
 
 	@Override
