@@ -91,62 +91,12 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 			geom.setLocalTranslation(player.getPhysicsLocation());
 
-			if (score < 5) {
-				obstacle.move(tpf * -6f, 0f, 0f);
-			} else if (score < 10) {
-				hudText.setColor(ColorRGBA.Cyan);
-				obstacle.move(tpf * -9f, 0f, 0f);
-			} else if (score < 16) {
-				hudText.setColor(ColorRGBA.Yellow);
-				obstacle.move(tpf * -12f, 0f, 0f);
-			} else if (score < 23) {
-				hudText.setColor(ColorRGBA.Orange);
-				obstacle.move(tpf * -15f, 0f, 0f);
-				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
-						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
-			} else if (score <= 31 || score >= 30) {
-				hudText.setColor(ColorRGBA.Red);
-				obstacle.move(tpf * -18f, 0f, 0f);
-				fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
-						obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
-			}
-
-			if (obstacle.getWorldTransform().getTranslation().y >= 2) {
-				bFire.setLocalTranslation(obstacle.getLocalTranslation().getX(),
-						obstacle.getLocalTranslation().getY() - 1f, obstacle.getLocalTranslation().getZ());
-			}
+			obstacleMove(tpf);
 
 			if (golemShape.getOverlappingObjects().contains(player)) {
 				isRunning = false;
 				isLost = true;
 				hudText.setText("You lose with a score of " + score + ".");
-			}
-
-			if (obstacle.getWorldTransform().getTranslation().x <= -10) {
-
-				// int randomLocation = (Math.random() <= 0.5) ? 1 : 2;
-
-				// if (obstacle.getWorldTransform().getTranslation().y < 2 && randomLocation ==
-				// 2) {
-				// randomLocation = 1;
-				// }
-
-				int randomLocation = random.nextInt(100) + 1;
-
-				if (score < 6) {
-					randomLocation = 1;
-				}
-
-				if (randomLocation < 80) {
-					obstacle.setLocalTranslation(10f, -1f, 0f);
-					control.setCurrentAction("Walk");
-				} else {
-					obstacle.setLocalTranslation(10f, 2.5f, 0f);
-					control.setCurrentAction("stand");
-				}
-
-				score++;
-				hudText.setText("Your score: " + score);
 			}
 		} else {
 			player.setJumpSpeed(0);
@@ -229,6 +179,60 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		fire.setLocalTranslation(10, 10, 0);
 		bFire.setLocalTranslation(10, 10, 0);
 		guiNode.attachChild(menuText);
+	}
+
+	public void obstacleMove(float tpf) {
+		if (score < 5) {
+			obstacle.move(tpf * -6f, 0f, 0f);
+		} else if (score < 10) {
+			hudText.setColor(ColorRGBA.Cyan);
+			obstacle.move(tpf * -9f, 0f, 0f);
+		} else if (score < 16) {
+			hudText.setColor(ColorRGBA.Yellow);
+			obstacle.move(tpf * -12f, 0f, 0f);
+		} else if (score < 23) {
+			hudText.setColor(ColorRGBA.Orange);
+			obstacle.move(tpf * -15f, 0f, 0f);
+			fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
+					obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
+		} else if (score <= 31 || score >= 30) {
+			hudText.setColor(ColorRGBA.Red);
+			obstacle.move(tpf * -18f, 0f, 0f);
+			fire.setLocalTranslation(obstacle.getLocalTranslation().getX() + 0.4f,
+					obstacle.getLocalTranslation().getY() + 0.6f, obstacle.getLocalTranslation().getZ());
+		}
+
+		if (obstacle.getWorldTransform().getTranslation().y >= 2) {
+			bFire.setLocalTranslation(obstacle.getLocalTranslation().getX(), obstacle.getLocalTranslation().getY() - 1f,
+					obstacle.getLocalTranslation().getZ());
+		}
+
+		if (obstacle.getWorldTransform().getTranslation().x <= -10) {
+
+			// int randomLocation = (Math.random() <= 0.5) ? 1 : 2;
+
+			// if (obstacle.getWorldTransform().getTranslation().y < 2 && randomLocation ==
+			// 2) {
+			// randomLocation = 1;
+			// }
+
+			int randomLocation = random.nextInt(100) + 1;
+
+			if (score < 6) {
+				randomLocation = 1;
+			}
+
+			if (randomLocation < 80) {
+				obstacle.setLocalTranslation(10f, -1f, 0f);
+				control.setCurrentAction("Walk");
+			} else {
+				obstacle.setLocalTranslation(10f, 2.5f, 0f);
+				control.setCurrentAction("stand");
+			}
+
+			score++;
+			hudText.setText("Your score: " + score);
+		}
 	}
 
 }

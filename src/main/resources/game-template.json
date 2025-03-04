@@ -1,0 +1,39 @@
+{
+	"title": "My Game",
+	"actors": {
+		"bob": {
+			"def": {
+				"class": "com.eric.actors.Model3dMonster",
+				"model": "classpath: /models/myModels/GreenGoblin.mesh.xml"
+			},
+			"ai": "com.eric.ai.ButtKicker2000"
+		}
+	},
+	"levels": [
+		{
+			"name": "Level 1",
+			"background": "",
+			"elements": [
+				{
+					"actor": "bob",
+					"instances": [
+						{
+							"x": 123,
+							"y": 345
+						}
+					]
+				},
+				{
+					"actor": "sam",
+					"instances": [
+						{
+							"x": 3453,
+							"y": 342
+						}
+					]
+				}
+				
+			]
+		}
+	]
+}
