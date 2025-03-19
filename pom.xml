@@ -94,6 +94,15 @@
 			<artifactId>jme3-terrain</artifactId>
 			<version>${jme3_v}</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.simsilica/lemur -->
+		<dependency>
+  			<groupId>com.simsilica</groupId>
+   			<artifactId>lemur</artifactId>
+  			<version>1.16.0</version>
+		</dependency>
+
+		
 		<!-- https://mvnrepository.com/artifact/org.jmonkeyengine/jme3-testdata -->
 		<dependency>
 			<groupId>org.jmonkeyengine</groupId>

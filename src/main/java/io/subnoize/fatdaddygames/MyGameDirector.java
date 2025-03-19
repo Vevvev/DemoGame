@@ -18,6 +18,12 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.simsilica.lemur.Button;
+import com.simsilica.lemur.Command;
+import com.simsilica.lemur.Container;
+import com.simsilica.lemur.GuiGlobals;
+import com.simsilica.lemur.Label;
+import com.simsilica.lemur.style.BaseStyles;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -109,6 +115,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		// TODO Auto-generated method stub
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
+
+		// Lemur initialize
+		GuiGlobals.initialize(configuration);
 
 		configuration.getFlyByCamera().setEnabled(false);
 		controls.setUpKeys();
@@ -216,7 +225,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			// randomLocation = 1;
 			// }
 
-			//TODO Make the obstacle lean forwards
+			// TODO Make the obstacle lean forwards
 			int randomLocation = random.nextInt(100) + 1;
 
 			if (score < 6) {
