@@ -22,8 +22,6 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
-import com.simsilica.lemur.Label;
-import com.simsilica.lemur.style.BaseStyles;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -69,7 +67,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	BitmapText hudText;
 	BitmapText keyText;
-	BitmapText menuText;
+	Container menuText;
 
 	private CharacterControl player;
 	private Geometry geom;
@@ -154,6 +152,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		guiNode.attachChild(keyText);
 
 		menuText = userI.initMenu();
+		menuButtonCommands();
 		guiNode.attachChild(menuText);
 
 		floor.initFloor(bulletAppState);
@@ -188,6 +187,31 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		fire.setLocalTranslation(10, 10, 0);
 		bFire.setLocalTranslation(10, 10, 0);
 		guiNode.attachChild(menuText);
+	}
+	
+	public void menuButtonCommands() {
+		Button play = menuText.addChild(new Button("Click me, or press P, to play!"));
+		Button settings = menuText.addChild(new Button("Settings"));
+		Button quit = menuText.addChild(new Button("Quit"));
+		play.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				isRunning = !isRunning;
+				guiNode.detachChild(menuText);
+			}
+		});
+		settings.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				
+			}
+		});
+		quit.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				configuration.stop();
+			}
+		});
 	}
 
 	public void obstacleMove(float tpf) {

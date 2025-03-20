@@ -7,8 +7,6 @@ import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
-import com.simsilica.lemur.Button;
-import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
 
@@ -22,7 +20,7 @@ public class UserInterface {
 
 	@Autowired
 	private AppSettings settings;
-	
+
 	@Autowired
 	private Node guiNode;
 
@@ -44,31 +42,19 @@ public class UserInterface {
 		return keyText;
 	}
 
-	public BitmapText initMenu() {
+	public Container initMenu() {
 
 		// Create a simple container for our elements
-		Container myWindow = new Container();
-		guiNode.attachChild(myWindow);
+		Container menuText = new Container();
+		guiNode.attachChild(menuText);
 
 		// Put it somewhere that we will see it.
 		// Note: Lemur GUI elements grow down from the upper left corner.
-		myWindow.setLocalTranslation(300, 300, 0);
+		menuText.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
 		// Add some elements
-		myWindow.addChild(new Label("Hello, World."));
-		Button clickMe = myWindow.addChild(new Button("Click Me"));
-		clickMe.addClickCommands(new Command<Button>() {
-			@Override
-			public void execute(Button source) {
-				System.out.println("The world is yours.");
-			}
-		});
+		menuText.addChild(new Label("Welcome to the Snowman Game!"));
 
-		BitmapText menuText = new BitmapText(configuration.guiFont());
-		menuText.setSize(configuration.guiFont().getCharSet().getRenderedSize() + 10);
-		menuText.setColor(ColorRGBA.White);
-		menuText.setText("Welcome to the Snowman Game! Press P to play!");
-		menuText.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 		return menuText;
 	}
 
