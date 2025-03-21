@@ -45,17 +45,49 @@ public class UserInterface {
 	public Container initMenu() {
 
 		// Create a simple container for our elements
-		Container menuText = new Container();
-		guiNode.attachChild(menuText);
+		Container MenuPanel = new Container();
+		guiNode.attachChild(MenuPanel);
 
 		// Put it somewhere that we will see it.
 		// Note: Lemur GUI elements grow down from the upper left corner.
-		menuText.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+		MenuPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
 		// Add some elements
-		menuText.addChild(new Label("Welcome to the Snowman Game!"));
+		MenuPanel.addChild(new Label("Welcome to the Snowman Game!"));
 
-		return menuText;
+		return MenuPanel;
+	}
+
+	public Container initSettings() {
+
+		// Create a simple container for our elements
+		Container settingsPanel = new Container();
+		guiNode.attachChild(settingsPanel);
+
+		// Put it somewhere that we will see it.
+		// Note: Lemur GUI elements grow down from the upper left corner.
+		settingsPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+
+		// Add some elements
+		settingsPanel.addChild(new Label("Settings. To be made later."));
+
+		return settingsPanel;
+	}
+
+	public Container initGameOver() {
+
+		// Create a simple container for our elements
+		Container gameOverPanel = new Container();
+		guiNode.attachChild(gameOverPanel);
+
+		// Put it somewhere that we will see it.
+		// Note: Lemur GUI elements grow down from the upper left corner.
+		gameOverPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+
+		// Add some elements
+		gameOverPanel.addChild(new Label("Game over... Your score is "));
+
+		return gameOverPanel;
 	}
 
 }
