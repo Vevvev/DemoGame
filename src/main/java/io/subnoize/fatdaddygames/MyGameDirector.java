@@ -69,6 +69,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	BitmapText keyText;
 	Container menuPanel;
 	Container settingsMenu;
+	Container gameOverMenu;
 
 	private CharacterControl player;
 	private Geometry geom;
