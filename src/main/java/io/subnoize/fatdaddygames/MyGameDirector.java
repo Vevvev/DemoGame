@@ -67,7 +67,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	BitmapText hudText;
 	BitmapText keyText;
-	Container menuText;
+	Container menuPanel;
+	Container settingsMenu;
 
 	private CharacterControl player;
 	private Geometry geom;
@@ -151,9 +152,11 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		keyText = userI.initKeys();
 		guiNode.attachChild(keyText);
 
-		menuText = userI.initMenu();
+		menuPanel = userI.initMenu();
+		settingsMenu = userI.initSettings();
 		menuButtonCommands();
-		guiNode.attachChild(menuText);
+		guiNode.detachChild(settingsMenu);
+		guiNode.attachChild(menuPanel);
 
 		floor.initFloor(bulletAppState);
 	}
@@ -168,7 +171,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		}
 		if (binding.equals("Pause") && !keyPressed && isLost == false) {
 			isRunning = !isRunning;
-			guiNode.detachChild(menuText);
+			guiNode.detachChild(menuPanel);
 		}
 
 		if (binding.equals("Reset")) {
@@ -186,30 +189,40 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		hudText.setColor(ColorRGBA.White);
 		fire.setLocalTranslation(10, 10, 0);
 		bFire.setLocalTranslation(10, 10, 0);
-		guiNode.attachChild(menuText);
+		guiNode.attachChild(menuPanel);
+		guiNode.detachChild(settingsMenu);
 	}
 	
 	public void menuButtonCommands() {
-		Button play = menuText.addChild(new Button("Click me, or press P, to play!"));
-		Button settings = menuText.addChild(new Button("Settings"));
-		Button quit = menuText.addChild(new Button("Quit"));
+		Button play = menuPanel.addChild(new Button("Click me, or press P, to play!"));
+		Button settings = menuPanel.addChild(new Button("Settings"));
+		Button quit = menuPanel.addChild(new Button("Quit"));
+		Button back = settingsMenu.addChild(new Button("Back"));
 		play.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				isRunning = !isRunning;
-				guiNode.detachChild(menuText);
+				guiNode.detachChild(menuPanel);
 			}
 		});
 		settings.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
-				
+				guiNode.detachChild(menuPanel);
+				guiNode.attachChild(settingsMenu);
 			}
 		});
 		quit.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				configuration.stop();
+			}
+		});
+		back.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				guiNode.detachChild(settingsMenu);
+				guiNode.attachChild(menuPanel);
 			}
 		});
 	}
