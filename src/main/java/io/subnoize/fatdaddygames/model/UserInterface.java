@@ -62,7 +62,6 @@ public class UserInterface {
 
 		// Create a simple container for our elements
 		Container settingsPanel = new Container();
-		guiNode.attachChild(settingsPanel);
 
 		// Put it somewhere that we will see it.
 		// Note: Lemur GUI elements grow down from the upper left corner.
@@ -78,14 +77,20 @@ public class UserInterface {
 
 		// Create a simple container for our elements
 		Container gameOverPanel = new Container();
-		guiNode.attachChild(gameOverPanel);
 
 		// Put it somewhere that we will see it.
 		// Note: Lemur GUI elements grow down from the upper left corner.
 		gameOverPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
-		// Add some elements
-		gameOverPanel.addChild(new Label("Game over... Your score is "));
+		return gameOverPanel;
+	}
+	
+	public Container displayGameOver(Container gameOverPanel, int score) {
+		
+		guiNode.attachChild(gameOverPanel);
+
+		gameOverPanel.detachAllChildren();
+		gameOverPanel.addChild(new Label("Game over... Your score is " + score));
 
 		return gameOverPanel;
 	}

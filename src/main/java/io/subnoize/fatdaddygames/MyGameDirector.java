@@ -103,6 +103,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				isRunning = false;
 				isLost = true;
 				hudText.setText("You lose with a score of " + score + ".");
+				userI.displayGameOver(gameOverMenu, score);
+				gameOverButtonCommands();
 			}
 		} else {
 			player.setJumpSpeed(0);
@@ -155,9 +157,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 		menuPanel = userI.initMenu();
 		settingsMenu = userI.initSettings();
+		gameOverMenu = userI.initGameOver();
 		menuButtonCommands();
-		guiNode.detachChild(settingsMenu);
-		guiNode.attachChild(menuPanel);
 
 		floor.initFloor(bulletAppState);
 	}
@@ -192,8 +193,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		bFire.setLocalTranslation(10, 10, 0);
 		guiNode.attachChild(menuPanel);
 		guiNode.detachChild(settingsMenu);
+		guiNode.detachChild(gameOverMenu);
 	}
-	
+
 	public void menuButtonCommands() {
 		Button play = menuPanel.addChild(new Button("Click me, or press P, to play!"));
 		Button settings = menuPanel.addChild(new Button("Settings"));
@@ -223,6 +225,30 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			@Override
 			public void execute(Button source) {
 				guiNode.detachChild(settingsMenu);
+				guiNode.attachChild(menuPanel);
+			}
+		});
+	}
+
+	public void gameOverButtonCommands() {
+
+		Button replay = gameOverMenu.addChild(new Button("Try again!"));
+		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
+
+		replay.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				gameReset();
+				isRunning = !isRunning;
+				guiNode.detachChild(menuPanel);
+			}
+		});
+		back.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				gameReset();
+				guiNode.detachChild(settingsMenu);
+				guiNode.detachChild(gameOverMenu);
 				guiNode.attachChild(menuPanel);
 			}
 		});
