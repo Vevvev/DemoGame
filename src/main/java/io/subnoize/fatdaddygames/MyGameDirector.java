@@ -22,6 +22,7 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
+import com.simsilica.lemur.style.BaseStyles;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -120,6 +121,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 		// Lemur initialize
 		GuiGlobals.initialize(configuration);
+		
+		// Load the 'glass' style
+		//BaseStyles.loadGlassStyle(); 
+		//Not working due to Groovy Scripting Engine not being available.
 
 		configuration.getFlyByCamera().setEnabled(false);
 		controls.setUpKeys();
