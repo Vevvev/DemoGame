@@ -1,5 +1,6 @@
 package io.subnoize.fatdaddygames;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,6 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
-import com.simsilica.lemur.style.BaseStyles;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -49,6 +49,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isLost = false;
 	private int score = 0;
+	private ArrayList<Integer> highScores = new ArrayList<>();
 
 	@Autowired
 	private UserInterface userI;
@@ -104,6 +105,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				isRunning = false;
 				isLost = true;
 				hudText.setText("You lose with a score of " + score + ".");
+				highScores.add(score);
 				userI.displayGameOver(gameOverMenu, score);
 				gameOverButtonCommands();
 			}
