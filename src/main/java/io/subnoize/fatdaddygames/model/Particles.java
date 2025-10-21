@@ -17,6 +17,10 @@ public class Particles {
 	@Autowired
 	private GameConfiguration configuration;
 
+	/**
+	 * Creates the Blue Fire effect.
+	 * @return Returns the blue particle emitter.
+	 */
 	public ParticleEmitter makeBlueFire() {
 		
 		Material mat_blue = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");
@@ -40,6 +44,10 @@ public class Particles {
 		return bFire;
 	}
 	
+	/**
+	 * Creates the Red Fire effect.
+	 * @return the red particle emitter.
+	 */
 	public ParticleEmitter makeRedFire() {
 		
 		Material mat_red = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Particle.j3md");

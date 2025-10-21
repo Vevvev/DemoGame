@@ -24,6 +24,10 @@ public class UserInterface {
 	@Autowired
 	private Node guiNode;
 
+	/**
+	 * Initializes the head's up display that has the score.
+	 * @return Returns the BitmapText of the score hud.
+	 */
 	public BitmapText initHud() {
 		BitmapText hudText = new BitmapText(configuration.guiFont());
 		hudText.setSize(configuration.guiFont().getCharSet().getRenderedSize()); // font size
@@ -33,6 +37,10 @@ public class UserInterface {
 		return hudText;
 	}
 
+	/**
+	 * Initializes the head's up display that contains the keybindings.
+	 * @return Returns the BitmapText of the keybinding hud.
+	 */
 	public BitmapText initKeys() {
 		BitmapText keyText = new BitmapText(configuration.guiFont());
 		keyText.setSize(configuration.guiFont().getCharSet().getRenderedSize());
@@ -41,23 +49,27 @@ public class UserInterface {
 		keyText.setLocalTranslation(0, settings.getHeight(), 0);
 		return keyText;
 	}
-
+	
+	/**
+	 * Initializes the main menu.
+	 * @return Returns the container with the main menu.
+	 */
 	public Container initMenu() {
 
-		// Create a simple container for our elements
 		Container MenuPanel = new Container();
 		guiNode.attachChild(MenuPanel);
 
-		// Put it somewhere that we will see it.
-		// Note: Lemur GUI elements grow down from the upper left corner.
 		MenuPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
-		// Add some elements
 		MenuPanel.addChild(new Label("Welcome to the Snowman Game!"));
 
 		return MenuPanel;
 	}
-
+	
+	/**
+	 * Initializes the menu for the settings page.
+	 * @return Returns the container with the settings.
+	 */
 	public Container initSettings() {
 
 		// Create a simple container for our elements
@@ -73,6 +85,10 @@ public class UserInterface {
 		return settingsPanel;
 	}
 
+	/**
+	 * Initializes the menu when losing the game.
+	 * @return Returns the container with the Game Over menu.
+	 */
 	public Container initGameOver() {
 
 		// Create a simple container for our elements
@@ -85,6 +101,12 @@ public class UserInterface {
 		return gameOverPanel;
 	}
 	
+	/**
+	 * Displays the game over menu.
+	 * @param gameOverPanel The Container holding the game over menu
+	 * @param score The score the player has
+	 * @return Returns the edited Game Over Container.
+	 */
 	public Container displayGameOver(Container gameOverPanel, int score) {
 		
 		guiNode.attachChild(gameOverPanel);

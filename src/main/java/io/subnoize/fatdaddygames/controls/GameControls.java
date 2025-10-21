@@ -14,6 +14,9 @@ public class GameControls {
 	@Autowired
 	private GameConfiguration configuration;
 
+	/**
+	 * Sets up the key bindings for the game.
+	 */
 	public void setUpKeys() {
 		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_UP));

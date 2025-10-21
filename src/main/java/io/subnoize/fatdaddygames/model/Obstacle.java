@@ -16,6 +16,10 @@ public class Obstacle {
 
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
 
+	/**
+	 * Creates the obstacle and loads in their model.
+	 * @return Returns the obstacle's Node.
+	 */
 	public Node makeObstacle() {
 
 		Node obstacle = (Node) configuration.assetManager().loadModel("Models/Oto/Oto.mesh.xml");

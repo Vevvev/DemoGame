@@ -18,19 +18,24 @@ import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 
 @Component
 public class Floor {
-	
+
 	@Autowired
 	private GameConfiguration configuration;
-	
+
 	@Autowired
 	private Node rootNode;
-	
+
 	private static final Box floor;
 	static {
 		floor = new Box(10f, 0.1f, 5f);
 		floor.scaleTextureCoordinates(new Vector2f(3, 6));
 	}
 
+	/**
+	 * Creates the floor for the game and defines its texture and position.
+	 * 
+	 * @param bulletAppState
+	 */
 	public void initFloor(BulletAppState bulletAppState) {
 		Material floor_mat = new Material(configuration.assetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
@@ -38,7 +43,7 @@ public class Floor {
 		Texture tex3 = configuration.assetManager().loadTexture(key3);
 		tex3.setWrap(WrapMode.Repeat);
 		floor_mat.setTexture("ColorMap", tex3);
-		
+
 		Geometry floor_geo = new Geometry("Floor", floor);
 		floor_geo.setMaterial(floor_mat);
 		floor_geo.setLocalTranslation(0, -2.1f, 0);

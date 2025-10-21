@@ -91,6 +91,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
 
+	/**
+	 * The update method where we keep the physics going if the game isn't paused.
+	 * Also check to see if the player collided with anything.
+	 */
 	@Override
 	public void update(float tpf) {
 		if (isRunning) {
@@ -115,32 +119,39 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		}
 	}
 
+	/**
+	 * Initialization method that starts the game up.
+	 */
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
+
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
 		// Lemur initialize
 		GuiGlobals.initialize(configuration);
-		
-		// Load the 'glass' style
-		//BaseStyles.loadGlassStyle(); 
-		//Not working due to Groovy Scripting Engine not being available.
 
+		// Load the 'glass' style UI
+		// BaseStyles.loadGlassStyle();
+		// Not working due to Groovy Scripting Engine not being available.
+
+		// Disabling the camera so it's not moving, and setting up keys.
 		configuration.getFlyByCamera().setEnabled(false);
 		controls.setUpKeys();
 
+		// Setting up the light in the scene.
 		DirectionalLight dl = new DirectionalLight();
 		dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
 		rootNode.addLight(dl);
 
+		// Creating the player.
 		geom = snowman.makeSnowmanBody();
 		rootNode.attachChild(geom);
 
 		player = snowman.makeSnowman();
 		bulletAppState.getPhysicsSpace().add(player);
 
+		// Creating the obstacle.
 		obstacle = ob.makeObstacle();
 		control = obstacle.getControl(AnimComposer.class);
 		control.setCurrentAction("Walk");
@@ -150,12 +161,14 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		bulletAppState.getPhysicsSpace().add(golemShape);
 		rootNode.attachChild(obstacle);
 
+		// Creating the particles to be used on the obstacle.
 		fire = part.makeRedFire();
 		rootNode.attachChild(fire);
 
 		bFire = part.makeBlueFire();
 		rootNode.attachChild(bFire);
 
+		// Creating the user interface.
 		hudText = userI.initHud();
 		guiNode.attachChild(hudText);
 
@@ -167,9 +180,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		gameOverMenu = userI.initGameOver();
 		menuButtonCommands();
 
+		// Creating the floor.
 		floor.initFloor(bulletAppState);
 	}
 
+	/**
+	 * Listener for key presses.
+	 */
 	@Override
 	public void onAction(String binding, boolean keyPressed, float tpf) {
 
@@ -188,6 +205,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		}
 	}
 
+	/**
+	 * Reset game method to return the game to its start position.
+	 */
 	public void gameReset() {
 		isRunning = false;
 		isLost = false;
@@ -203,6 +223,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		guiNode.detachChild(gameOverMenu);
 	}
 
+	/**
+	 * Method that creates the main menu and its buttons.
+	 */
 	public void menuButtonCommands() {
 		Button play = menuPanel.addChild(new Button("Click me, or press P, to play!"));
 		Button settings = menuPanel.addChild(new Button("Settings"));
@@ -237,6 +260,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		});
 	}
 
+	/**
+	 * Method that creates the game over menu and its buttons
+	 */
 	public void gameOverButtonCommands() {
 
 		Button replay = gameOverMenu.addChild(new Button("Try again!"));
@@ -261,6 +287,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		});
 	}
 
+	/**
+	 * Method that determines the speed of the obstacle and its position, as well as
+	 * update the score.
+	 * 
+	 * @param tpf The time in the game that when multiplied with the location stops
+	 *            the game from changing speed with the monitor's refresh rate.
+	 */
 	public void obstacleMove(float tpf) {
 		if (score < 5) {
 			obstacle.move(tpf * -6f, 0f, 0f);
