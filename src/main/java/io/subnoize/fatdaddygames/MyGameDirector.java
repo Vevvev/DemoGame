@@ -128,12 +128,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
-		// Lemur initialize
+		// Lemur initialize. This is for the user interface.
 		GuiGlobals.initialize(configuration);
-
-		// Load the 'glass' style UI
-		// BaseStyles.loadGlassStyle();
-		// Not working due to Groovy Scripting Engine not being available.
 
 		// Disabling the camera so it's not moving, and setting up keys.
 		configuration.getFlyByCamera().setEnabled(false);
