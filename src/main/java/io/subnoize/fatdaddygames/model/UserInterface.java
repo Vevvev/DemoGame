@@ -72,14 +72,10 @@ public class UserInterface {
 	 */
 	public Container initSettings() {
 
-		// Create a simple container for our elements
 		Container settingsPanel = new Container();
 
-		// Put it somewhere that we will see it.
-		// Note: Lemur GUI elements grow down from the upper left corner.
 		settingsPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
-		// Add some elements
 		settingsPanel.addChild(new Label("Settings. To be made later."));
 
 		return settingsPanel;
@@ -91,11 +87,8 @@ public class UserInterface {
 	 */
 	public Container initGameOver() {
 
-		// Create a simple container for our elements
 		Container gameOverPanel = new Container();
 
-		// Put it somewhere that we will see it.
-		// Note: Lemur GUI elements grow down from the upper left corner.
 		gameOverPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
 		return gameOverPanel;
