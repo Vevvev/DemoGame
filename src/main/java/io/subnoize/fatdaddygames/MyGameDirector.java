@@ -97,7 +97,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	 */
 	@Override
 	public void update(float tpf) {
-		if (isRunning) {
+		if (isRunning.equals(true)) {
 			player.setJumpSpeed(15);
 			player.setFallSpeed(30);
 
@@ -186,12 +186,11 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	@Override
 	public void onAction(String binding, boolean keyPressed, float tpf) {
 
-		if (binding.equals("Jump")) {
-			if (isRunning) {
+		if (binding.equals("Jump") && isRunning.equals(true)) {
 				player.jump();
 			}
-		}
-		if (binding.equals("Pause") && !keyPressed && isLost == false) {
+		
+		if (binding.equals("Pause") && !keyPressed && isLost.equals(false)) {
 			isRunning = !isRunning;
 			guiNode.detachChild(menuPanel);
 		}
