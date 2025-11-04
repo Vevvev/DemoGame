@@ -1,6 +1,5 @@
 package io.subnoize.fatdaddygames;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +27,18 @@ import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
 import io.subnoize.fatdaddygames.controls.GameControls;
 import io.subnoize.fatdaddygames.model.Floor;
+import io.subnoize.fatdaddygames.model.HighScore;
 import io.subnoize.fatdaddygames.model.Obstacle;
 import io.subnoize.fatdaddygames.model.Particles;
 import io.subnoize.fatdaddygames.model.Snowman;
 import io.subnoize.fatdaddygames.model.UserInterface;
+import io.subnoize.fatdaddygames.repository.HighScoreRepository;
 
 public class MyGameDirector implements GameDirector, ActionListener {
 
+	@Autowired
+	private HighScoreRepository highScoreRepo;
+	
 	@Autowired
 	private GameConfiguration configuration;
 
@@ -49,7 +53,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isLost = false;
 	private int score = 0;
-	private ArrayList<Integer> highScores = new ArrayList<>();
 
 	@Autowired
 	private UserInterface userI;
@@ -109,7 +112,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				isRunning = false;
 				isLost = true;
 				hudText.setText("You lose with a score of " + score + ".");
-				highScores.add(score);
+				highScoreRepo.save(new HighScore("Player", score)); //Saves the score.
 				userI.displayGameOver(gameOverMenu, score);
 				gameOverButtonCommands();
 			}

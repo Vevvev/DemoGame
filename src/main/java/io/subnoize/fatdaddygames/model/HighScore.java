@@ -1,7 +1,6 @@
 package io.subnoize.fatdaddygames.model;
 
-import org.springframework.data.annotation.Id;
-
+import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +13,7 @@ public class HighScore {
 	private Long id;
 
 	private String playerName;
-	
+
 	private int score;
 
 	public HighScore() {
