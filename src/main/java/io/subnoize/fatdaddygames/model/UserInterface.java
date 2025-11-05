@@ -14,7 +14,7 @@ import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 
 @Component
 public class UserInterface {
-
+	
 	@Autowired
 	private GameConfiguration configuration;
 
@@ -28,11 +28,11 @@ public class UserInterface {
 	 * Initializes the head's up display that has the score.
 	 * @return Returns the BitmapText of the score hud.
 	 */
-	public BitmapText initHud() {
+	public BitmapText initHud(int highScore) {
 		BitmapText hudText = new BitmapText(configuration.guiFont());
 		hudText.setSize(configuration.guiFont().getCharSet().getRenderedSize()); // font size
 		hudText.setColor(ColorRGBA.White); // font color
-		hudText.setText("Your score: 0"); // the text
+		hudText.setText("Your score: 0   Highest score: " + highScore); // the text
 		hudText.setLocalTranslation(settings.getWidth() / 2, settings.getHeight(), 0); // position
 		return hudText;
 	}
@@ -106,6 +106,8 @@ public class UserInterface {
 
 		gameOverPanel.detachAllChildren();
 		gameOverPanel.addChild(new Label("Game over... Your score is " + score));
+		
+		
 
 		return gameOverPanel;
 	}

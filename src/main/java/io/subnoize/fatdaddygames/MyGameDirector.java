@@ -1,5 +1,6 @@
 package io.subnoize.fatdaddygames;
 
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private HighScoreRepository highScoreRepo;
-	
+
 	@Autowired
 	private GameConfiguration configuration;
 
@@ -53,6 +54,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isLost = false;
 	private int score = 0;
+	private int highScore = 0;
 
 	@Autowired
 	private UserInterface userI;
@@ -111,8 +113,14 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			if (golemShape.getOverlappingObjects().contains(player)) {
 				isRunning = false;
 				isLost = true;
-				hudText.setText("You lose with a score of " + score + ".");
-				highScoreRepo.save(new HighScore("Player", score)); //Saves the score.
+				highScoreRepo.save(new HighScore("Player", score)); // Saves the score.
+				List<HighScore> scores = highScoreRepo.findTop10ByOrderByScoreDesc();
+				scores.forEach(o -> {
+					if (o.getScore() > highScore) {
+						highScore = o.getScore();
+					}
+				});
+				hudText.setText("You lose with a score of " + score + ".   Highest score: " + highScore);
 				userI.displayGameOver(gameOverMenu, score);
 				gameOverButtonCommands();
 			}
@@ -168,7 +176,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		rootNode.attachChild(bFire);
 
 		// Creating the user interface.
-		hudText = userI.initHud();
+		List<HighScore> scores = highScoreRepo.findTop10ByOrderByScoreDesc();
+		scores.forEach(o -> {
+			if (o.getScore() > highScore) {
+				highScore = o.getScore();
+			}
+		});
+		hudText = userI.initHud(highScore);
 		guiNode.attachChild(hudText);
 
 		keyText = userI.initKeys();
@@ -190,9 +204,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	public void onAction(String binding, boolean keyPressed, float tpf) {
 
 		if (binding.equals("Jump") && isRunning.equals(true)) {
-				player.jump();
-			}
-		
+			player.jump();
+		}
+
 		if (binding.equals("Pause") && !keyPressed && isLost.equals(false)) {
 			isRunning = !isRunning;
 			guiNode.detachChild(menuPanel);
@@ -210,9 +224,15 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		isRunning = false;
 		isLost = false;
 		score = 0;
+		List<HighScore> scores = highScoreRepo.findTop10ByOrderByScoreDesc();
+		scores.forEach(o -> {
+			if (o.getScore() > highScore) {
+				highScore = o.getScore();
+			}
+		});
 		player.setPhysicsLocation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
-		hudText.setText("Your score: " + score);
+		hudText.setText("Your score: " + score + "   Highest score: " + highScore);
 		hudText.setColor(ColorRGBA.White);
 		fire.setLocalTranslation(10, 10, 0);
 		bFire.setLocalTranslation(10, 10, 0);
@@ -343,7 +363,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 
 			score++;
-			hudText.setText("Your score: " + score);
+			hudText.setText("Your score: " + score + "   Highest score: " + highScore);
 		}
 	}
 
