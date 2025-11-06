@@ -23,6 +23,7 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
+import com.simsilica.lemur.Label;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -34,11 +35,15 @@ import io.subnoize.fatdaddygames.model.Particles;
 import io.subnoize.fatdaddygames.model.Snowman;
 import io.subnoize.fatdaddygames.model.UserInterface;
 import io.subnoize.fatdaddygames.repository.HighScoreRepository;
+import io.subnoize.fatdaddygames.service.HighScoreService;
 
 public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private HighScoreRepository highScoreRepo;
+	
+	@Autowired
+	private HighScoreService highScoreServ;
 
 	@Autowired
 	private GameConfiguration configuration;
@@ -113,8 +118,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			if (golemShape.getOverlappingObjects().contains(player)) {
 				isRunning = false;
 				isLost = true;
-				highScoreRepo.save(new HighScore("Player", score)); // Saves the score.
-				List<HighScore> scores = highScoreRepo.findTop10ByOrderByScoreDesc();
+				List<HighScore> scores = highScoreServ.recordScore("Player", score);
 				scores.forEach(o -> {
 					if (o.getScore() > highScore) {
 						highScore = o.getScore();
@@ -122,7 +126,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				});
 				hudText.setText("You lose with a score of " + score + ".   Highest score: " + highScore);
 				userI.displayGameOver(gameOverMenu, score);
-				gameOverButtonCommands();
+				gameOverButtonCommands(scores);
 			}
 		} else {
 			player.setJumpSpeed(0);
@@ -279,9 +283,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	}
 
 	/**
-	 * Method that creates the game over menu and its buttons
+	 * Method that creates the game over menu and its buttons, and lists high scores.
 	 */
-	public void gameOverButtonCommands() {
+	public void gameOverButtonCommands(List<HighScore> scores) {
 
 		Button replay = gameOverMenu.addChild(new Button("Try again!"));
 		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
@@ -303,6 +307,12 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				guiNode.attachChild(menuPanel);
 			}
 		});
+
+		gameOverMenu.addChild(new Label("-High Scores-"));
+		for (int i = 0; i < scores.size(); i++) {
+			gameOverMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
+					+ scores.get(i).getScore()));
+		}
 	}
 
 	/**

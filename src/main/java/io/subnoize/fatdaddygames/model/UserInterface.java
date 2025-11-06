@@ -106,8 +106,6 @@ public class UserInterface {
 
 		gameOverPanel.detachAllChildren();
 		gameOverPanel.addChild(new Label("Game over... Your score is " + score));
-		
-		
 
 		return gameOverPanel;
 	}
