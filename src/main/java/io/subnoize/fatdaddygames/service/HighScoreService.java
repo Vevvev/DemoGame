@@ -23,4 +23,9 @@ public class HighScoreService {
 																							// small.
 		return scores;
 	}
+	
+	@Transactional
+	public void resetScores() {
+		highScoreRepo.deleteAll();
+	}
 }
