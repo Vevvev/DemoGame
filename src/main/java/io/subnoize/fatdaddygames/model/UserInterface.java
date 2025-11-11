@@ -76,9 +76,22 @@ public class UserInterface {
 
 		settingsPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
 
-		settingsPanel.addChild(new Label("Settings. To be made later."));
+		settingsPanel.addChild(new Label("-Settings-"));
 
 		return settingsPanel;
+	}
+	
+	/**
+	 * Initializes the menu for the scores page.
+	 * @return Returns the container with the scores.
+	 */
+	public Container initScores() {
+
+		Container scoresPanel = new Container();
+
+		scoresPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+
+		return scoresPanel;
 	}
 
 	/**

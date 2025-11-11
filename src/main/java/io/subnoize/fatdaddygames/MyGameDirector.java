@@ -81,6 +81,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	BitmapText keyText;
 	Container menuPanel;
 	Container settingsMenu;
+	Container scoreMenu;
 	Container gameOverMenu;
 
 	private CharacterControl player;
@@ -194,8 +195,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 		menuPanel = userI.initMenu();
 		settingsMenu = userI.initSettings();
+		scoreMenu = userI.initScores();
 		gameOverMenu = userI.initGameOver();
 		menuButtonCommands();
+		scoreButtonCommands(scores);
 
 		// Creating the floor.
 		floor.initFloor(bulletAppState);
@@ -234,6 +237,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				highScore = o.getScore();
 			}
 		});
+		scoreMenu.clearChildren();
+		scoreButtonCommands(scores);
 		player.setPhysicsLocation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
 		hudText.setText("Your score: " + score + "   Highest score: " + highScore);
@@ -246,34 +251,50 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	}
 
 	/**
-	 * Method that creates the main menu and its buttons.
+	 * Method that creates the main menu buttons.
 	 */
 	public void menuButtonCommands() {
-		Button play = menuPanel.addChild(new Button("Click me, or press P, to play!"));
-		Button settings = menuPanel.addChild(new Button("Settings"));
-		Button quit = menuPanel.addChild(new Button("Quit"));
-		Button back = settingsMenu.addChild(new Button("Back"));
-		play.addClickCommands(new Command<Button>() {
+		Button playButton = menuPanel.addChild(new Button("Click me, or press P, to play!"));
+		Button settingsButton = menuPanel.addChild(new Button("Settings"));
+		Button scoreButton = menuPanel.addChild(new Button("High Scores"));
+		Button quitButton = menuPanel.addChild(new Button("Quit"));
+		Button scoreWipeButton = settingsMenu.addChild(new Button("Reset High Scores"));
+		Button settingsBackButton = settingsMenu.addChild(new Button("Back"));
+		playButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				isRunning = !isRunning;
 				guiNode.detachChild(menuPanel);
 			}
 		});
-		settings.addClickCommands(new Command<Button>() {
+		settingsButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				guiNode.detachChild(menuPanel);
 				guiNode.attachChild(settingsMenu);
 			}
 		});
-		quit.addClickCommands(new Command<Button>() {
+		scoreButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				guiNode.detachChild(menuPanel);
+				guiNode.attachChild(scoreMenu);
+			}
+		});
+		quitButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				configuration.stop();
 			}
 		});
-		back.addClickCommands(new Command<Button>() {
+		scoreWipeButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				highScoreServ.resetScores();
+				gameReset();
+			}
+		});
+		settingsBackButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				guiNode.detachChild(settingsMenu);
@@ -281,15 +302,31 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 		});
 	}
+	
+	/**
+	 * Method that creates the score menu buttons, and lists high scores.
+	 */
+	public void scoreButtonCommands(List<HighScore> scores) {
+		scoreMenu.addChild(new Label("-High Scores-"));
+		for (int i = 0; i < scores.size(); i++) {
+			scoreMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
+					+ scores.get(i).getScore()));
+		}
+		Button scoreBackButton = scoreMenu.addChild(new Button("Back"));
+		scoreBackButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				guiNode.detachChild(scoreMenu);
+				guiNode.attachChild(menuPanel);
+			}
+		});
+	}
 
 	/**
-	 * Method that creates the game over menu and its buttons, and lists high scores.
+	 * Method that creates the game over menu buttons, and lists high scores.
 	 */
 	public void gameOverButtonCommands(List<HighScore> scores) {
-
 		Button replay = gameOverMenu.addChild(new Button("Try again!"));
-		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
-
 		replay.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
@@ -298,6 +335,12 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				guiNode.detachChild(menuPanel);
 			}
 		});
+		gameOverMenu.addChild(new Label("-High Scores-"));
+		for (int i = 0; i < scores.size(); i++) {
+			gameOverMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
+					+ scores.get(i).getScore()));
+		}
+		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
 		back.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
@@ -307,12 +350,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				guiNode.attachChild(menuPanel);
 			}
 		});
-
-		gameOverMenu.addChild(new Label("-High Scores-"));
-		for (int i = 0; i < scores.size(); i++) {
-			gameOverMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
-					+ scores.get(i).getScore()));
-		}
 	}
 
 	/**
