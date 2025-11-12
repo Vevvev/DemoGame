@@ -144,6 +144,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
+		// TODO Look into Nifty GUI.
 		// Lemur initialize. This is for the user interface.
 		GuiGlobals.initialize(configuration);
 
