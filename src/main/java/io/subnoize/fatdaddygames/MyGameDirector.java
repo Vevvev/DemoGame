@@ -6,7 +6,6 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jme3.anim.AnimComposer;
-import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
@@ -18,7 +17,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.Button;
@@ -27,13 +25,6 @@ import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.Label;
 
-import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.builder.LayerBuilder;
-import de.lessvoid.nifty.builder.PanelBuilder;
-import de.lessvoid.nifty.builder.ScreenBuilder;
-import de.lessvoid.nifty.builder.TextBuilder;
-import de.lessvoid.nifty.controls.button.builder.ButtonBuilder;
-import de.lessvoid.nifty.screen.DefaultScreenController;
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
 import io.subnoize.fatdaddygames.controls.GameControls;
@@ -50,7 +41,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private HighScoreRepository highScoreRepo;
-	
+
 	@Autowired
 	private HighScoreService highScoreServ;
 
@@ -86,6 +77,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isRunning = false;
 
+	private String playerName;
 	BitmapText hudText;
 	BitmapText keyText;
 	Container menuPanel;
@@ -134,7 +126,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 						highScore = o.getScore();
 					}
 				});
-				hudText.setText("You lose with a score of " + score + ".   Highest score: " + highScore);
+				StringBuilder sb = new StringBuilder();
+				sb.append("You lose with a score of ").append(score).append(".   Highest score: ").append(highScore);
+				hudText.setText(sb.toString());
 				userI.displayGameOver(gameOverMenu, score);
 				gameOverButtonCommands(scores);
 			}
@@ -153,115 +147,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
-		NiftyJmeDisplay niftyDisplay = NiftyJmeDisplay.newNiftyJmeDisplay(
-				stateManager.getApplication().getAssetManager(),
-				stateManager.getApplication().getInputManager(),
-				stateManager.getApplication().getAudioRenderer(),
-				stateManager.getApplication().getGuiViewPort());
-
-		Nifty nifty = niftyDisplay.getNifty();
-		stateManager.getApplication().getGuiViewPort().addProcessor(niftyDisplay);
-		((SimpleApplication) stateManager.getApplication()).getFlyByCamera().setDragToRotate(true);
-
-		nifty.loadStyleFile("nifty-default-styles.xml");
-		nifty.loadControlFile("nifty-default-controls.xml");
-
-		// <!-- ... -->
-		
-		nifty.loadStyleFile("nifty-default-styles.xml");
-        nifty.loadControlFile("nifty-default-controls.xml");
-
-        nifty.addScreen("start", new ScreenBuilder("start") {{
-            controller(new DefaultScreenController());
-            // layer added
-            layer(new LayerBuilder("background") {{
-                childLayoutCenter();
-                backgroundColor("#000f");
-
-            }});
-
-            layer(new LayerBuilder("foreground") {{
-                childLayoutVertical();
-                backgroundColor("#0000");
-
-                // panel added
-                panel(new PanelBuilder("panel_top") {{
-                    childLayoutCenter();
-                    alignCenter();
-                    backgroundColor("#f008");
-                    height("25%");
-                    width("75%");
-
-                    text(new TextBuilder() {{
-                        text("My Cool Game");
-                        height("100%");
-                        width("100%");
-                    }});
-                }});
-
-                panel(new PanelBuilder("panel_mid") {{
-                    childLayoutCenter();
-                    alignCenter();
-                    backgroundColor("#0f08");
-                    height("50%");
-                    width("75%");
-
-                    // add text
-                    text(new TextBuilder() {{
-                        text("Here goes some text describing the game and the rules and stuff. "
-                           + "Incidentally, the text is quite long and needs to wrap at the end of lines. ");
-                        wrap(true);
-                        height("100%");
-                        width("100%");
-                    }});
-                }});
-
-                panel(new PanelBuilder("panel_bottom") {{
-                    childLayoutHorizontal();
-                    alignCenter();
-                    backgroundColor("#00f8");
-                    height("25%");
-                    width("75%");
-
-                    panel(new PanelBuilder("panel_bottom_left") {{
-                        childLayoutCenter();
-                        valignCenter();
-                        backgroundColor("#44f8");
-                        height("50%");
-                        width("50%");
-
-                        // add control
-                        control(new ButtonBuilder("StartButton", "Start") {{
-                            alignCenter();
-                            valignCenter();
-                            height("50%");
-                            width("50%");
-                        }});
-                    }});
-
-                    panel(new PanelBuilder("panel_bottom_right") {{
-                        childLayoutCenter();
-                        valignCenter();
-                        backgroundColor("#88f8");
-                        height("50%");
-                        width("50%");
-
-                        // add control
-                        control(new ButtonBuilder("QuitButton", "Quit") {{
-                            alignCenter();
-                            valignCenter();
-                            height("50%");
-                            width("50%");
-                        }});
-                    }});
-                }}); // panel added
-            }});
-            // layer added
-
-        }}.build(nifty));
-
-        nifty.gotoScreen("start"); // start the screen
-		
 		// Lemur initialize. This is for the user interface.
 		GuiGlobals.initialize(configuration);
 
@@ -303,6 +188,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		scores.forEach(o -> {
 			if (o.getScore() > highScore) {
 				highScore = o.getScore();
+				playerName = o.getPlayerName();
 			}
 		});
 		hudText = userI.initHud(highScore);
@@ -359,10 +245,15 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		scoreButtonCommands(scores);
 		player.setPhysicsLocation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
-		hudText.setText("Your score: " + score + "   Highest score: " + highScore);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("Your score: ").append(score).append("   Highest score: ").append(highScore);
+		hudText.setText(sb.toString());
 		hudText.setColor(ColorRGBA.White);
+
 		fire.setLocalTranslation(10, 10, 0);
 		bFire.setLocalTranslation(10, 10, 0);
+
 		guiNode.attachChild(menuPanel);
 		guiNode.detachChild(settingsMenu);
 		guiNode.detachChild(gameOverMenu);
@@ -420,15 +311,17 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 		});
 	}
-	
+
 	/**
 	 * Method that creates the score menu buttons, and lists high scores.
 	 */
 	public void scoreButtonCommands(List<HighScore> scores) {
 		scoreMenu.addChild(new Label("-High Scores-"));
 		for (int i = 0; i < scores.size(); i++) {
-			scoreMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
-					+ scores.get(i).getScore()));
+			StringBuilder sb = new StringBuilder();
+			sb.append("#").append(i + 1).append(": ").append(scores.get(i).getPlayerName()).append(" with a score of ")
+					.append(scores.get(i).getScore());
+			scoreMenu.addChild(new Label(sb.toString()));
 		}
 		Button scoreBackButton = scoreMenu.addChild(new Button("Back"));
 		scoreBackButton.addClickCommands(new Command<Button>() {
@@ -455,8 +348,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		});
 		gameOverMenu.addChild(new Label("-High Scores-"));
 		for (int i = 0; i < scores.size(); i++) {
-			gameOverMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
-					+ scores.get(i).getScore()));
+			StringBuilder sb = new StringBuilder();
+			sb.append("#").append(i + 1).append(": ").append(scores.get(i).getPlayerName()).append(" with a score of ")
+					.append(scores.get(i).getScore());
+			gameOverMenu.addChild(new Label(sb.toString()));
 		}
 		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
 		back.addClickCommands(new Command<Button>() {
@@ -528,7 +423,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 
 			score++;
-			hudText.setText("Your score: " + score + "   Highest score: " + highScore);
+			StringBuilder sb = new StringBuilder();
+			sb.append("Your score: ").append(score).append("   Highest score: ").append(highScore);
+			hudText.setText(sb.toString());
 		}
 	}
 
