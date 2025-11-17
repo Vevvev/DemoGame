@@ -21,7 +21,7 @@ public class GameControls {
 		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_UP));
 		configuration.inputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_W));
-		configuration.inputManager().addMapping("Pause", new KeyTrigger(KeyInput.KEY_P));
+		configuration.inputManager().addMapping("Pause", new KeyTrigger(KeyInput.KEY_EQUALS));
 		configuration.inputManager().addMapping("Reset", new KeyTrigger(KeyInput.KEY_BACK));
 		configuration.inputManager().addListener(configuration, "Jump");
 		configuration.inputManager().addListener(configuration, "Pause");

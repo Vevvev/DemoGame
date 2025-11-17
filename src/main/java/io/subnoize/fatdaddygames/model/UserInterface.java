@@ -45,7 +45,7 @@ public class UserInterface {
 		BitmapText keyText = new BitmapText(configuration.guiFont());
 		keyText.setSize(configuration.guiFont().getCharSet().getRenderedSize());
 		keyText.setColor(ColorRGBA.White);
-		keyText.setText("Space, W, or up arrow to jump, P to play and pause, Backspace to reset, and ESC to quit."); // text
+		keyText.setText("Space, W, or up arrow to jump, = to play and pause, Backspace to reset, and ESC to quit."); // text
 		keyText.setLocalTranslation(0, settings.getHeight(), 0);
 		return keyText;
 	}

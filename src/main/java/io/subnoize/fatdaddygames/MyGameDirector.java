@@ -193,6 +193,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 		});
 		if (playerName.isBlank()) {
+			//If we don't get a name we default to Player.
 			playerName = "Player";
 		}
 		hudText = userI.initHud(highScore);
@@ -227,7 +228,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			guiNode.detachChild(menuPanel);
 		}
 
-		if (binding.equals("Reset")) {
+		if (binding.equals("Reset") && isRunning.equals(true)) {
 			gameReset();
 		}
 	}
@@ -271,7 +272,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		Button settingsButton = menuPanel.addChild(new Button("Settings"));
 		Button scoreButton = menuPanel.addChild(new Button("High Scores"));
 		Button quitButton = menuPanel.addChild(new Button("Quit"));
+		settingsMenu.addChild(new Label("Player Name:"));
 		TextField nameField = settingsMenu.addChild(new TextField(playerName));
+		Button nameSaveButton = settingsMenu.addChild(new Button("Save Name"));
 		Button scoreWipeButton = settingsMenu.addChild(new Button("Reset High Scores"));
 		Button settingsBackButton = settingsMenu.addChild(new Button("Back"));
 		playButton.addClickCommands(new Command<Button>() {
@@ -299,6 +302,12 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			@Override
 			public void execute(Button source) {
 				configuration.stop();
+			}
+		});
+		nameSaveButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				playerName = nameField.getText();
 			}
 		});
 		scoreWipeButton.addClickCommands(new Command<Button>() {
