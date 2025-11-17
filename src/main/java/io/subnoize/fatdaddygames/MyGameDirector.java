@@ -24,6 +24,7 @@ import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.Label;
+import com.simsilica.lemur.TextField;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -41,7 +42,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private HighScoreRepository highScoreRepo;
-	
+
 	@Autowired
 	private HighScoreService highScoreServ;
 
@@ -77,6 +78,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isRunning = false;
 
+	private String playerName = "";
 	BitmapText hudText;
 	BitmapText keyText;
 	Container menuPanel;
@@ -119,13 +121,15 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			if (golemShape.getOverlappingObjects().contains(player)) {
 				isRunning = false;
 				isLost = true;
-				List<HighScore> scores = highScoreServ.recordScore("Player", score);
+				List<HighScore> scores = highScoreServ.recordScore(playerName, score);
 				scores.forEach(o -> {
 					if (o.getScore() > highScore) {
 						highScore = o.getScore();
 					}
 				});
-				hudText.setText("You lose with a score of " + score + ".   Highest score: " + highScore);
+				StringBuilder sb = new StringBuilder();
+				sb.append("You lose with a score of ").append(score).append(".   Highest score: ").append(highScore);
+				hudText.setText(sb.toString());
 				userI.displayGameOver(gameOverMenu, score);
 				gameOverButtonCommands(scores);
 			}
@@ -185,8 +189,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		scores.forEach(o -> {
 			if (o.getScore() > highScore) {
 				highScore = o.getScore();
+				playerName = o.getPlayerName();
 			}
 		});
+		if (playerName.isBlank()) {
+			//If we don't get a name we default to Player.
+			playerName = "Player";
+		}
 		hudText = userI.initHud(highScore);
 		guiNode.attachChild(hudText);
 
@@ -219,7 +228,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			guiNode.detachChild(menuPanel);
 		}
 
-		if (binding.equals("Reset")) {
+		if (binding.equals("Reset") && isRunning.equals(true)) {
 			gameReset();
 		}
 	}
@@ -241,10 +250,15 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		scoreButtonCommands(scores);
 		player.setPhysicsLocation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
-		hudText.setText("Your score: " + score + "   Highest score: " + highScore);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("Your score: ").append(score).append("   Highest score: ").append(highScore);
+		hudText.setText(sb.toString());
 		hudText.setColor(ColorRGBA.White);
+
 		fire.setLocalTranslation(10, 10, 0);
 		bFire.setLocalTranslation(10, 10, 0);
+
 		guiNode.attachChild(menuPanel);
 		guiNode.detachChild(settingsMenu);
 		guiNode.detachChild(gameOverMenu);
@@ -258,6 +272,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		Button settingsButton = menuPanel.addChild(new Button("Settings"));
 		Button scoreButton = menuPanel.addChild(new Button("High Scores"));
 		Button quitButton = menuPanel.addChild(new Button("Quit"));
+		settingsMenu.addChild(new Label("Player Name:"));
+		TextField nameField = settingsMenu.addChild(new TextField(playerName));
+		Button nameSaveButton = settingsMenu.addChild(new Button("Save Name"));
 		Button scoreWipeButton = settingsMenu.addChild(new Button("Reset High Scores"));
 		Button settingsBackButton = settingsMenu.addChild(new Button("Back"));
 		playButton.addClickCommands(new Command<Button>() {
@@ -287,6 +304,12 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				configuration.stop();
 			}
 		});
+		nameSaveButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				playerName = nameField.getText();
+			}
+		});
 		scoreWipeButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
@@ -302,15 +325,17 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 		});
 	}
-	
+
 	/**
 	 * Method that creates the score menu buttons, and lists high scores.
 	 */
 	public void scoreButtonCommands(List<HighScore> scores) {
 		scoreMenu.addChild(new Label("-High Scores-"));
 		for (int i = 0; i < scores.size(); i++) {
-			scoreMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
-					+ scores.get(i).getScore()));
+			StringBuilder sb = new StringBuilder();
+			sb.append("#").append(i + 1).append(": ").append(scores.get(i).getPlayerName()).append(" with a score of ")
+					.append(scores.get(i).getScore());
+			scoreMenu.addChild(new Label(sb.toString()));
 		}
 		Button scoreBackButton = scoreMenu.addChild(new Button("Back"));
 		scoreBackButton.addClickCommands(new Command<Button>() {
@@ -337,8 +362,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		});
 		gameOverMenu.addChild(new Label("-High Scores-"));
 		for (int i = 0; i < scores.size(); i++) {
-			gameOverMenu.addChild(new Label("#" + (i + 1) + ": " + scores.get(i).getPlayerName() + " with a score of "
-					+ scores.get(i).getScore()));
+			StringBuilder sb = new StringBuilder();
+			sb.append("#").append(i + 1).append(": ").append(scores.get(i).getPlayerName()).append(" with a score of ")
+					.append(scores.get(i).getScore());
+			gameOverMenu.addChild(new Label(sb.toString()));
 		}
 		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
 		back.addClickCommands(new Command<Button>() {
@@ -410,7 +437,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 
 			score++;
-			hudText.setText("Your score: " + score + "   Highest score: " + highScore);
+			StringBuilder sb = new StringBuilder();
+			sb.append("Your score: ").append(score).append("   Highest score: ").append(highScore);
+			hudText.setText(sb.toString());
 		}
 	}
 
