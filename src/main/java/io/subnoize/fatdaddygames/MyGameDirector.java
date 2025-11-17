@@ -24,6 +24,7 @@ import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.Label;
+import com.simsilica.lemur.TextField;
 
 import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.configuration.GameDirector;
@@ -77,7 +78,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isRunning = false;
 
-	private String playerName;
+	private String playerName = "";
 	BitmapText hudText;
 	BitmapText keyText;
 	Container menuPanel;
@@ -120,7 +121,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			if (golemShape.getOverlappingObjects().contains(player)) {
 				isRunning = false;
 				isLost = true;
-				List<HighScore> scores = highScoreServ.recordScore("Player", score);
+				List<HighScore> scores = highScoreServ.recordScore(playerName, score);
 				scores.forEach(o -> {
 					if (o.getScore() > highScore) {
 						highScore = o.getScore();
@@ -191,6 +192,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				playerName = o.getPlayerName();
 			}
 		});
+		if (playerName.isBlank()) {
+			playerName = "Player";
+		}
 		hudText = userI.initHud(highScore);
 		guiNode.attachChild(hudText);
 
@@ -267,6 +271,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		Button settingsButton = menuPanel.addChild(new Button("Settings"));
 		Button scoreButton = menuPanel.addChild(new Button("High Scores"));
 		Button quitButton = menuPanel.addChild(new Button("Quit"));
+		TextField nameField = settingsMenu.addChild(new TextField(playerName));
 		Button scoreWipeButton = settingsMenu.addChild(new Button("Reset High Scores"));
 		Button settingsBackButton = settingsMenu.addChild(new Button("Back"));
 		playButton.addClickCommands(new Command<Button>() {
