@@ -421,7 +421,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			// randomLocation = 1;
 			// }
 
-			// TODO Make the obstacle lean forwards
+			// TODO Make the obstacle lean forwards.
 			int randomLocation = random.nextInt(100) + 1;
 
 			if (score < 6) {
