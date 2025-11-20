@@ -16,6 +16,8 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -103,6 +105,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private static final Vector3f playerDefault = new Vector3f(-3f, 10f, 0f);
 	private static final Vector3f obstacleDefault = new Vector3f(10f, -1f, 0f);
+	private static final Quaternion obstacleDefaultRotation = new Quaternion().fromAngles(0, -1.5f, 0);
 
 	/**
 	 * The update method where we keep the physics going if the game isn't paused.
@@ -250,6 +253,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		scoreButtonCommands(scores);
 		player.setPhysicsLocation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
+		control.setCurrentAction("Walk");
+		obstacle.setLocalRotation(obstacleDefaultRotation);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("Your score: ").append(score).append("   Highest score: ").append(highScore);
@@ -314,6 +319,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			@Override
 			public void execute(Button source) {
 				highScoreServ.resetScores();
+				highScore = 0;
 				gameReset();
 			}
 		});
@@ -408,7 +414,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		}
 
 		if (obstacle.getWorldTransform().getTranslation().y >= 2) {
-			bFire.setLocalTranslation(obstacle.getLocalTranslation().getX(), obstacle.getLocalTranslation().getY() - 1f,
+			bFire.setLocalTranslation(obstacle.getLocalTranslation().getX()+0.3f, obstacle.getLocalTranslation().getY() - 1f,
 					obstacle.getLocalTranslation().getZ());
 		}
 
@@ -421,7 +427,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			// randomLocation = 1;
 			// }
 
-			// TODO Make the obstacle lean forwards
 			int randomLocation = random.nextInt(100) + 1;
 
 			if (score < 6) {
@@ -429,11 +434,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 
 			if (randomLocation < 80) {
-				obstacle.setLocalTranslation(10f, -1f, 0f);
+				obstacle.setLocalTranslation(obstacleDefault);
 				control.setCurrentAction("Walk");
+				obstacle.setLocalRotation(obstacleDefaultRotation);
 			} else {
 				obstacle.setLocalTranslation(10f, 2.5f, 0f);
 				control.setCurrentAction("stand");
+				obstacle.setLocalRotation(new Quaternion().fromAngles(20f * FastMath.DEG_TO_RAD, -1.5f, 0f));
 			}
 
 			score++;
