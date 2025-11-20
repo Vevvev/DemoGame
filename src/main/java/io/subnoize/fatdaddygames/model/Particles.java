@@ -32,10 +32,10 @@ public class Particles {
 		bFire.setImagesY(2);
 		bFire.setStartColor(ColorRGBA.Blue);
 		bFire.setEndColor(ColorRGBA.Cyan);
-		bFire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, -5, 0));
+		bFire.getParticleInfluencer().setInitialVelocity(new Vector3f(2, -5, 0));
 		bFire.setStartSize(0.5f);
 		bFire.setEndSize(1.5f);
-		bFire.setGravity(-20, 1, 0);
+		bFire.setGravity(0, 1, 0);
 		bFire.setLowLife(0.5f);
 		bFire.setHighLife(0.5f);
 		bFire.getParticleInfluencer().setVelocityVariation(0.1f);
