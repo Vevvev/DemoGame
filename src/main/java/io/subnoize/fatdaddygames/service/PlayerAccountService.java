@@ -36,4 +36,9 @@ public class PlayerAccountService {
 	public List<PlayerAccount> loadPlayers() {
 		return accountRepo.findAll();
 	}
+	
+	@Transactional
+	public void deletePlayer(PlayerAccount playerName) {
+		accountRepo.delete(playerName);
+	}
 }
