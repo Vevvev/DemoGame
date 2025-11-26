@@ -13,12 +13,15 @@ public class PlayerAccount {
 	private Long id;
 	
 	private String playerName;
+	
+	private boolean active;
 
 	public PlayerAccount() {
 	}
 
-	public PlayerAccount(String playerName) {
+	public PlayerAccount(String playerName, boolean active) {
 		this.playerName = playerName;
+		this.active = active;
 	}
 
 	public Long getId() {
@@ -35,5 +38,13 @@ public class PlayerAccount {
 
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

@@ -17,7 +17,19 @@ public class PlayerAccountService {
 	
 	@Transactional
 	public void savePlayer(String playerName) {
-		accountRepo.save(new PlayerAccount(playerName));
+		accountRepo.save(new PlayerAccount(playerName, false));
+	}
+	
+	@Transactional
+	public PlayerAccount changePlayer(PlayerAccount newPlayer, PlayerAccount oldPlayer) {
+		
+		oldPlayer.setActive(false);
+		newPlayer.setActive(true);
+		
+		accountRepo.save(oldPlayer);
+		accountRepo.save(newPlayer);
+		
+		return newPlayer;
 	}
 	
 	@Transactional
