@@ -38,7 +38,7 @@ public class PlayerAccountService {
 	}
 	
 	@Transactional
-	public void deletePlayer(PlayerAccount playerName) {
-		accountRepo.delete(playerName);
+	public void deletePlayer(PlayerAccount player) {
+		accountRepo.delete(player);
 	}
 }
