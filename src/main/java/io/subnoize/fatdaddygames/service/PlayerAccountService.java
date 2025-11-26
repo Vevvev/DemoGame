@@ -14,29 +14,29 @@ public class PlayerAccountService {
 
 	@Autowired
 	private PlayerAccountRepository accountRepo;
-	
+
 	@Transactional
-	public void savePlayer(String playerName) {
-		accountRepo.save(new PlayerAccount(playerName, false));
+	public void savePlayer(String playerName, boolean active) {
+		accountRepo.save(new PlayerAccount(playerName, active));
 	}
-	
+
 	@Transactional
 	public PlayerAccount changePlayer(PlayerAccount newPlayer, PlayerAccount oldPlayer) {
-		
+
 		oldPlayer.setActive(false);
 		newPlayer.setActive(true);
-		
+
 		accountRepo.save(oldPlayer);
 		accountRepo.save(newPlayer);
-		
+
 		return newPlayer;
 	}
-	
+
 	@Transactional
 	public List<PlayerAccount> loadPlayers() {
 		return accountRepo.findAll();
 	}
-	
+
 	@Transactional
 	public void deletePlayer(PlayerAccount player) {
 		accountRepo.delete(player);
