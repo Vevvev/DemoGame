@@ -85,6 +85,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	BitmapText keyText;
 	Container menuPanel;
 	Container settingsMenu;
+	Container playerMenu;
 	Container scoreMenu;
 	Container gameOverMenu;
 
@@ -207,6 +208,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 		menuPanel = userI.initMenu();
 		settingsMenu = userI.initSettings();
+		playerMenu = userI.initPlayerSelect();
 		scoreMenu = userI.initScores();
 		gameOverMenu = userI.initGameOver();
 		menuButtonCommands();
@@ -266,6 +268,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 		guiNode.attachChild(menuPanel);
 		guiNode.detachChild(settingsMenu);
+		guiNode.detachChild(playerMenu);
 		guiNode.detachChild(gameOverMenu);
 	}
 
@@ -279,7 +282,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		Button quitButton = menuPanel.addChild(new Button("Quit"));
 		settingsMenu.addChild(new Label("Player Name:"));
 		TextField nameField = settingsMenu.addChild(new TextField(playerName));
-		Button nameSaveButton = settingsMenu.addChild(new Button("Save Name"));
+		Button playerSaveButton = settingsMenu.addChild(new Button("Add Player"));
+		Button changePlayerButton = settingsMenu.addChild(new Button("Change Player"));
+		Button changePlayerBackButton = playerMenu.addChild(new Button("Back"));
 		Button scoreWipeButton = settingsMenu.addChild(new Button("Reset High Scores"));
 		Button settingsBackButton = settingsMenu.addChild(new Button("Back"));
 		playButton.addClickCommands(new Command<Button>() {
@@ -309,10 +314,24 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				configuration.stop();
 			}
 		});
-		nameSaveButton.addClickCommands(new Command<Button>() {
+		playerSaveButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
 				playerName = nameField.getText();
+			}
+		});
+		changePlayerButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				guiNode.detachChild(settingsMenu);
+				guiNode.attachChild(playerMenu);
+			}
+		});
+		changePlayerBackButton.addClickCommands(new Command<Button>() {
+			@Override
+			public void execute(Button source) {
+				guiNode.detachChild(playerMenu);
+				guiNode.attachChild(settingsMenu);
 			}
 		});
 		scoreWipeButton.addClickCommands(new Command<Button>() {

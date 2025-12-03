@@ -82,6 +82,21 @@ public class UserInterface {
 	}
 	
 	/**
+	 * Initializes the menu for the player selection page.
+	 * @return Returns the container with the settings.
+	 */
+	public Container initPlayerSelect() {
+
+		Container playerMenu = new Container();
+
+		playerMenu.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+
+		playerMenu.addChild(new Label("-Players-"));
+
+		return playerMenu;
+	}
+	
+	/**
 	 * Initializes the menu for the scores page.
 	 * @return Returns the container with the scores.
 	 */
