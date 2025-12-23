@@ -91,7 +91,6 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private CharacterControl player;
 	private Geometry geom;
-	private BulletAppState bulletAppState;
 
 	private AnimComposer control;
 
@@ -148,6 +147,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	 */
 	@Override
 	public void init() {
+		BulletAppState bulletAppState;
 
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
