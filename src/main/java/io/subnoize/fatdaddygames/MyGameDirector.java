@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.app.state.AppStateManager;
@@ -37,13 +38,11 @@ import io.subnoize.fatdaddygames.model.Obstacle;
 import io.subnoize.fatdaddygames.model.Particles;
 import io.subnoize.fatdaddygames.model.Snowman;
 import io.subnoize.fatdaddygames.model.UserInterface;
-import io.subnoize.fatdaddygames.repository.HighScoreRepository;
 import io.subnoize.fatdaddygames.service.HighScoreService;
+import io.subnoize.fatdaddygames.ui.HighScorePageView;
 
 public class MyGameDirector implements GameDirector, ActionListener {
 
-	@Autowired
-	private HighScoreRepository highScoreRepo;
 
 	@Autowired
 	private HighScoreService highScoreServ;
@@ -87,6 +86,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	Container settingsMenu;
 	Container scoreMenu;
 	Container gameOverMenu;
+	Container gameOverScoresPanel;
+	private int scorePageIndex = 0;
+	private int gameOverPageIndex = 0;
 
 	private CharacterControl player;
 	private Geometry geom;
@@ -134,7 +136,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				sb.append("You lose with a score of ").append(score).append(".   Highest score: ").append(highScore);
 				hudText.setText(sb.toString());
 				userI.displayGameOver(gameOverMenu, score);
-				gameOverButtonCommands(scores);
+				gameOverButtonCommands();
 			}
 		} else {
 			player.setJumpSpeed(0);
@@ -188,7 +190,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		rootNode.attachChild(bFire);
 
 		// Creating the user interface.
-		List<HighScore> scores = highScoreRepo.findTop10ByOrderByScoreDesc();
+		List<HighScore> scores = highScoreServ.getScorePage(0).getContent();
 		scores.forEach(o -> {
 			if (o.getScore() > highScore) {
 				highScore = o.getScore();
@@ -210,7 +212,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		scoreMenu = userI.initScores();
 		gameOverMenu = userI.initGameOver();
 		menuButtonCommands();
-		scoreButtonCommands(scores);
+		showScorePage(0);
 
 		// Creating the floor.
 		floor.initFloor(bulletAppState);
@@ -237,20 +239,23 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	}
 
 	/**
-	 * Reset game method to return the game to its start position.
+	 * Reset game method to return the game to its start position and refresh both
+	 * leaderboard entry paths from page one so a reset cannot leave stale rows visible.
 	 */
 	public void gameReset() {
 		isRunning = false;
 		isLost = false;
 		score = 0;
-		List<HighScore> scores = highScoreRepo.findTop10ByOrderByScoreDesc();
+		scorePageIndex = 0;
+		gameOverPageIndex = 0;
+		gameOverScoresPanel = null;
+		List<HighScore> scores = highScoreServ.getScorePage(0).getContent();
 		scores.forEach(o -> {
 			if (o.getScore() > highScore) {
 				highScore = o.getScore();
 			}
 		});
-		scoreMenu.clearChildren();
-		scoreButtonCommands(scores);
+		showScorePage(0);
 		player.setPhysicsLocation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
 		control.setCurrentAction("Walk");
@@ -300,6 +305,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			@Override
 			public void execute(Button source) {
 				guiNode.detachChild(menuPanel);
+				scorePageIndex = 0;
+				showScorePage(0);
 				guiNode.attachChild(scoreMenu);
 			}
 		});
@@ -333,31 +340,46 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	}
 
 	/**
-	 * Method that creates the score menu buttons, and lists high scores.
+	 * Rebuilds the main-menu leaderboard from the requested database page. Clearing the
+	 * same container before rendering keeps reopening and paging free of duplicate controls.
+	 *
+	 * @param requestedPage zero-based page requested by a navigation action
 	 */
-	public void scoreButtonCommands(List<HighScore> scores) {
-		scoreMenu.addChild(new Label("-High Scores-"));
-		for (int i = 0; i < scores.size(); i++) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("#").append(i + 1).append(": ").append(scores.get(i).getPlayerName()).append(" with a score of ")
-					.append(scores.get(i).getScore());
-			scoreMenu.addChild(new Label(sb.toString()));
-		}
-		Button scoreBackButton = scoreMenu.addChild(new Button("Back"));
+	private void showScorePage(int requestedPage) {
+		Page<HighScore> page = this.highScoreServ.getScorePage(requestedPage);
+		this.scorePageIndex = page.getNumber();
+		this.scoreMenu.detachAllChildren();
+		this.addLeaderboardContents(this.scoreMenu, page,
+				new Command<Button>() {
+					@Override
+					public void execute(Button source) {
+						MyGameDirector.this.showScorePage(MyGameDirector.this.scorePageIndex - 1);
+					}
+				},
+				new Command<Button>() {
+					@Override
+					public void execute(Button source) {
+						MyGameDirector.this.showScorePage(MyGameDirector.this.scorePageIndex + 1);
+					}
+				});
+		Button scoreBackButton = this.scoreMenu.addChild(new Button("Back"));
 		scoreBackButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
-				guiNode.detachChild(scoreMenu);
-				guiNode.attachChild(menuPanel);
+				MyGameDirector.this.guiNode.detachChild(MyGameDirector.this.scoreMenu);
+				MyGameDirector.this.guiNode.attachChild(MyGameDirector.this.menuPanel);
 			}
 		});
+		this.userI.fitLeaderboardPanel(this.scoreMenu);
 	}
 
 	/**
-	 * Method that creates the game over menu buttons, and lists high scores.
+	 * Creates the game-over actions once and keeps them outside the replaceable score area,
+	 * so paging never removes the lost-score label, replay action, or return-to-menu action.
 	 */
-	public void gameOverButtonCommands(List<HighScore> scores) {
-		Button replay = gameOverMenu.addChild(new Button("Try again!"));
+	private void gameOverButtonCommands() {
+		this.gameOverPageIndex = 0;
+		Button replay = this.gameOverMenu.addChild(new Button("Try again!"));
 		replay.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
@@ -366,14 +388,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				guiNode.detachChild(menuPanel);
 			}
 		});
-		gameOverMenu.addChild(new Label("-High Scores-"));
-		for (int i = 0; i < scores.size(); i++) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("#").append(i + 1).append(": ").append(scores.get(i).getPlayerName()).append(" with a score of ")
-					.append(scores.get(i).getScore());
-			gameOverMenu.addChild(new Label(sb.toString()));
-		}
-		Button back = gameOverMenu.addChild(new Button("Return to Main Menu"));
+		this.gameOverScoresPanel = this.gameOverMenu.addChild(new Container());
+		this.showGameOverScorePage(0);
+		Button back = this.gameOverMenu.addChild(new Button("Return to Main Menu"));
 		back.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
@@ -383,6 +400,62 @@ public class MyGameDirector implements GameDirector, ActionListener {
 				guiNode.attachChild(menuPanel);
 			}
 		});
+		this.userI.fitLeaderboardPanel(this.gameOverMenu);
+	}
+
+	/**
+	 * Refreshes only the game-over score area. The separate container preserves the game-over
+	 * label and existing replay/back controls across every page transition.
+	 *
+	 * @param requestedPage zero-based page requested by a navigation action
+	 */
+	private void showGameOverScorePage(int requestedPage) {
+		Page<HighScore> page = this.highScoreServ.getScorePage(requestedPage);
+		this.gameOverPageIndex = page.getNumber();
+		this.gameOverScoresPanel.detachAllChildren();
+		this.addLeaderboardContents(this.gameOverScoresPanel, page,
+				new Command<Button>() {
+					@Override
+					public void execute(Button source) {
+						MyGameDirector.this.showGameOverScorePage(MyGameDirector.this.gameOverPageIndex - 1);
+					}
+				},
+				new Command<Button>() {
+					@Override
+					public void execute(Button source) {
+						MyGameDirector.this.showGameOverScorePage(MyGameDirector.this.gameOverPageIndex + 1);
+					}
+				});
+		this.userI.fitLeaderboardPanel(this.gameOverMenu);
+	}
+
+	/**
+	 * Renders one ten-row database page with continuous ranks and only the navigation actions
+	 * that can move in the requested direction. Empty data still has a stable Page 1 of 1 view.
+	 *
+	 * @param target container dedicated to this leaderboard's replaceable contents
+	 * @param page database-backed score page
+	 * @param previousCommand action for the preceding page
+	 * @param nextCommand action for the following page
+	 */
+	private void addLeaderboardContents(Container target, Page<HighScore> page,
+			Command<Button> previousCommand, Command<Button> nextCommand) {
+		HighScorePageView view = new HighScorePageView(page);
+		target.addChild(new Label("-High Scores-"));
+		if (view.isEmpty()) {
+			target.addChild(new Label("No high scores yet."));
+		} else {
+			view.scoreRows().forEach(row -> target.addChild(new Label(row)));
+		}
+		target.addChild(new Label(view.pageIndicator()));
+		if (view.hasPrevious()) {
+			Button previous = target.addChild(new Button("Previous"));
+			previous.addClickCommands(previousCommand);
+		}
+		if (view.hasNext()) {
+			Button next = target.addChild(new Button("Next"));
+			next.addClickCommands(nextCommand);
+		}
 	}
 
 	/**

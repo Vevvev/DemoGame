@@ -106,6 +106,19 @@ public class UserInterface {
 
 		return gameOverPanel;
 	}
+
+	/**
+	 * Vertically centers a completed leaderboard panel after its rows and navigation actions
+	 * have been added. Full pages can exceed half the viewport height; fitting after each rebuild
+	 * keeps both main-menu and game-over rows and controls visible during page transitions.
+	 *
+	 * @param leaderboardPanel completed leaderboard panel to fit within the configured viewport
+	 */
+	public void fitLeaderboardPanel(Container leaderboardPanel) {
+		float panelHeight = leaderboardPanel.getPreferredSize().y;
+		float centeredY = (this.settings.getHeight() + panelHeight) / 2f;
+		leaderboardPanel.setLocalTranslation(leaderboardPanel.getLocalTranslation().x, centeredY, 0);
+	}
 	
 	/**
 	 * Displays the game over menu.
