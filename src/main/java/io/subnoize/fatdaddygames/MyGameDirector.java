@@ -20,6 +20,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
@@ -37,6 +38,7 @@ import io.subnoize.fatdaddygames.model.Obstacle;
 import io.subnoize.fatdaddygames.model.Particles;
 import io.subnoize.fatdaddygames.model.Snowman;
 import io.subnoize.fatdaddygames.model.UserInterface;
+import io.subnoize.fatdaddygames.model.WinterLandscape;
 import io.subnoize.fatdaddygames.service.HighScoreService;
 import io.subnoize.fatdaddygames.ui.HighScorePageView;
 
@@ -57,6 +59,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	@Autowired
 	private Node guiNode;
+
+	@Autowired
+	private ViewPort viewPort;
 
 	private Boolean isLost = false;
 	private int score = 0;
@@ -92,6 +97,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	private CharacterControl player;
 	private Node snowmanBody;
 	private BulletAppState bulletAppState;
+	private WinterLandscape winterLandscape;
 
 	private AnimComposer control;
 
@@ -109,38 +115,38 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	private static final Quaternion obstacleDefaultRotation = new Quaternion().fromAngles(0, -1.5f, 0);
 
 	/**
-	 * The update method where we keep the physics going if the game isn't paused.
-	 * Also check to see if the player collided with anything.
+	 * Advances gameplay visuals only while the retained physics state is enabled.
+	 * Pause disables BulletAppState rather than modifying CharacterControl's jump/fall
+	 * configuration, so an airborne player resumes with the same physical momentum.
+	 *
+	 * @param tpf elapsed frame time in seconds
 	 */
 	@Override
 	public void update(float tpf) {
-		if (isRunning.equals(true)) {
-			player.setJumpSpeed(15);
-			player.setFallSpeed(30);
+		if (!this.isRunning) {
+			return;
+		}
 
-			// Move the shared parent so every snowman part follows the same jump.
-			this.snowmanBody.setLocalTranslation(this.player.getPhysicsLocation());
+		this.snowmanBody.setLocalTranslation(this.player.getPhysicsLocation());
+		this.obstacleMove(tpf);
+		if (this.winterLandscape != null) {
+			this.winterLandscape.update(tpf, this.currentGameSpeed(), this.isRunning);
+		}
 
-			obstacleMove(tpf);
-
-			if (golemShape.getOverlappingObjects().contains(player)) {
-				isRunning = false;
-				isLost = true;
-				List<HighScore> scores = highScoreServ.recordScore(playerName, score);
-				scores.forEach(o -> {
-					if (o.getScore() > highScore) {
-						highScore = o.getScore();
-					}
-				});
-				StringBuilder sb = new StringBuilder();
-				sb.append("You lose with a score of ").append(score).append(".   Highest score: ").append(highScore);
-				hudText.setText(sb.toString());
-				userI.displayGameOver(gameOverMenu, score);
-				gameOverButtonCommands();
-			}
-		} else {
-			player.setJumpSpeed(0);
-			player.setFallSpeed(0);
+		if (this.golemShape.getOverlappingObjects().contains(this.player)) {
+			this.setRunning(false);
+			this.isLost = true;
+			List<HighScore> scores = this.highScoreServ.recordScore(this.playerName, this.score);
+			scores.forEach(o -> {
+				if (o.getScore() > this.highScore) {
+					this.highScore = o.getScore();
+				}
+			});
+			StringBuilder sb = new StringBuilder();
+			sb.append("You lose with a score of ").append(this.score).append(".   Highest score: ").append(this.highScore);
+			this.hudText.setText(sb.toString());
+			this.userI.displayGameOver(this.gameOverMenu, this.score);
+			this.gameOverButtonCommands();
 		}
 	}
 
@@ -150,8 +156,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	@Override
 	public void init() {
 
-		bulletAppState = new BulletAppState();
-		stateManager.attach(bulletAppState);
+		this.bulletAppState = new BulletAppState();
+		this.stateManager.attach(this.bulletAppState);
+		this.bulletAppState.setEnabled(false);
 
 		// Lemur initialize. This is for the user interface.
 		GuiGlobals.initialize(configuration);
@@ -214,8 +221,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		menuButtonCommands();
 		showScorePage(0);
 
-		// Creating the floor.
-		floor.initFloor(bulletAppState);
+		// Keep the playable collision box fixed; all panorama elements are visual-only.
+		this.floor.initFloor(this.bulletAppState);
+		this.winterLandscape = new WinterLandscape(
+				this.configuration.assetManager(), this.rootNode, this.viewPort);
 	}
 
 	/**
@@ -228,9 +237,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			player.jump();
 		}
 
-		if (binding.equals("Pause") && !keyPressed && isLost.equals(false)) {
-			isRunning = !isRunning;
-			guiNode.detachChild(menuPanel);
+		if (binding.equals("Pause") && !keyPressed && !this.isLost) {
+			this.setRunning(!this.isRunning);
+			this.guiNode.detachChild(this.menuPanel);
 		}
 
 		if (binding.equals("Reset") && isRunning.equals(true)) {
@@ -243,8 +252,11 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	 * leaderboard entry paths from page one so a reset cannot leave stale rows visible.
 	 */
 	public void gameReset() {
-		isRunning = false;
-		isLost = false;
+		this.setRunning(false);
+		this.isLost = false;
+		if (this.winterLandscape != null) {
+			this.winterLandscape.reset();
+		}
 		score = 0;
 		scorePageIndex = 0;
 		gameOverPageIndex = 0;
@@ -290,8 +302,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		playButton.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
-				isRunning = !isRunning;
-				guiNode.detachChild(menuPanel);
+				MyGameDirector.this.setRunning(true);
+				MyGameDirector.this.guiNode.detachChild(MyGameDirector.this.menuPanel);
 			}
 		});
 		settingsButton.addClickCommands(new Command<Button>() {
@@ -383,9 +395,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		replay.addClickCommands(new Command<Button>() {
 			@Override
 			public void execute(Button source) {
-				gameReset();
-				isRunning = !isRunning;
-				guiNode.detachChild(menuPanel);
+				MyGameDirector.this.gameReset();
+				MyGameDirector.this.setRunning(true);
+				MyGameDirector.this.guiNode.detachChild(MyGameDirector.this.menuPanel);
 			}
 		});
 		this.gameOverScoresPanel = this.gameOverMenu.addChild(new Container());
@@ -456,6 +468,33 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			Button next = target.addChild(new Button("Next"));
 			next.addClickCommands(nextCommand);
 		}
+	}
+
+	/**
+	 * Applies one lifecycle transition to gameplay and the retained physics state.
+	 * BulletAppState is disabled, rather than changing controller tuning, so its normal
+	 * AppState scheduling stops world stepping without accumulating paused time.
+	 *
+	 * @param running whether gameplay should advance
+	 */
+	private void setRunning(boolean running) {
+		this.isRunning = running;
+		if (this.bulletAppState != null) {
+			this.bulletAppState.setEnabled(running);
+		}
+	}
+
+	private float currentGameSpeed() {
+		if (this.score < 5) {
+			return 6f;
+		} else if (this.score < 10) {
+			return 9f;
+		} else if (this.score < 16) {
+			return 12f;
+		} else if (this.score < 23) {
+			return 15f;
+		}
+		return 18f;
 	}
 
 	/**
