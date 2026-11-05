@@ -2,8 +2,10 @@ package io.subnoize.fatdaddygames.configuration;
 
 import java.util.Optional;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.jme3.app.LostFocusBehavior;
@@ -31,7 +33,6 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.Timer;
 
 import io.subnoize.fatdaddygames.MyGameDirector;
-import jakarta.annotation.PostConstruct;
 
 @Configuration
 @EnableScheduling
@@ -39,8 +40,14 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 
 	private GameDirector gameDirector;
 	
-	@PostConstruct
-	public void init() {
+	/**
+	 * Starts the native game loop only after Spring has completed singleton creation and
+	 * dependency injection. Starting from {@code @PostConstruct} races the engine thread
+	 * against field injection in {@link MyGameDirector}, allowing {@code simpleInitApp}
+	 * to reach {@code GameControls.setUpKeys()} while required controls are still null.
+	 */
+	@EventListener(ApplicationReadyEvent.class)
+	public void startOnApplicationReady() {
 		this.start();
 	}
 	

@@ -42,9 +42,7 @@ class SnowmanTests {
 	void setUp() {
 		AssetManager assets = new DesktopAssetManager(true);
 		assets.registerLocator("", ClasspathLocator.class);
-		GameConfiguration configuration = mock(GameConfiguration.class);
-		given(configuration.assetManager()).willReturn(assets);
-		this.snowman = new Snowman(configuration);
+		this.snowman = new Snowman(new TestGameConfiguration(assets));
 	}
 
 	@Test
@@ -192,5 +190,19 @@ class SnowmanTests {
 		assertThat(part.getMaterial().getParam("UseMaterialColors").getValue()).isEqualTo(true);
 		assertThat(part.getMaterial().getParam("Diffuse").getValue()).isEqualTo(color);
 		assertThat(part.getMaterial().getParam("Ambient").getValue()).isEqualTo(color);
+	}
+
+	private static final class TestGameConfiguration extends GameConfiguration {
+
+		private final AssetManager assets;
+
+		TestGameConfiguration(AssetManager assets) {
+			this.assets = assets;
+		}
+
+		@Override
+		public AssetManager assetManager() {
+			return this.assets;
+		}
 	}
 }

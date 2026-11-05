@@ -6,19 +6,24 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import com.jme3.scene.Node;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
+import com.jme3.system.JmeContext;
+import com.simsilica.lemur.Container;
+import com.simsilica.lemur.GuiGlobals;
 
 /**
  * Exercises real JBullet stepping through AppStateManager rather than mocking a pause flag.
@@ -35,13 +40,14 @@ class PhysicsPauseTests {
 		try (PhysicsFixture paused = new PhysicsFixture(); PhysicsFixture uninterrupted = new PhysicsFixture()) {
 			CharacterControl pausedPlayer = paused.createGroundedPlayer();
 			CharacterControl uninterruptedPlayer = uninterrupted.createGroundedPlayer();
+			float groundedY = pausedPlayer.getPhysicsLocation().y;
 			pausedPlayer.jump();
 			uninterruptedPlayer.jump();
 			paused.step(activeFramesBeforePause);
 			uninterrupted.step(activeFramesBeforePause);
 
-			float groundedY = pausedPlayer.getPhysicsLocation().y;
 			Vector3f stoppedAt = pausedPlayer.getPhysicsLocation().clone();
+			assertThat(pausedPlayer.getPhysicsLocation().y).isGreaterThan(groundedY);
 			assertThat(uninterruptedPlayer.getPhysicsLocation().y).isGreaterThan(groundedY);
 			MyGameDirector director = this.director(paused.physics);
 			director.onAction("Pause", false, FRAME);
@@ -64,7 +70,7 @@ class PhysicsPauseTests {
 	private MyGameDirector director(BulletAppState physics) {
 		MyGameDirector director = new MyGameDirector();
 		Node guiNode = new Node("GUI");
-		Node menu = new Node("Menu");
+		Container menu = new Container();
 		guiNode.attachChild(menu);
 		ReflectionTestUtils.setField(director, "bulletAppState", physics);
 		ReflectionTestUtils.setField(director, "guiNode", guiNode);
@@ -83,8 +89,10 @@ class PhysicsPauseTests {
 			given(this.application.getStateManager()).willReturn(this.stateManager);
 			this.stateManager.attach(this.physics);
 			this.stateManager.update(0f);
-			this.physics.getPhysicsSpace().add(new RigidBodyControl(
-					new BoxCollisionShape(new Vector3f(20f, 0.1f, 5f)), 0f));
+			RigidBodyControl floor = new RigidBodyControl(
+					new BoxCollisionShape(new Vector3f(20f, 0.1f, 5f)), 0f);
+			floor.setPhysicsLocation(new Vector3f(0f, -2.1f, 0f));
+			this.physics.getPhysicsSpace().add(floor);
 		}
 
 		CharacterControl createGroundedPlayer() {
