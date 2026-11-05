@@ -35,12 +35,14 @@ public class Snowman {
 
 	/**
 	 * Creates three overlapping snowballs, coal eyes and buttons, a carrot nose,
-	 * and two stick arms as one movable player node. The face points toward +Z,
-	 * toward the game's default camera. There are no accessories or animations.
+	 * and two stick arms as one movable player node. The parts are built facing
+	 * local +Z, then the visual parent turns toward +X (screen right) so the
+	 * snowman faces the approaching golem. There are no accessories or animations.
 	 *
-	 * The snowballs span -1.35 to +1.35 on local Y, matching the existing capsule's
-	 * foot and head heights. Keep this origin aligned with the physics location:
-	 * changing the artwork must not change jump tuning or the collision shape.
+	 * Rotate only the artwork, not the character controller: facing the obstacle
+	 * must not change movement, jump tuning, or the collision shape. The snowballs
+	 * span -1.35 to +1.35 on local Y, matching the capsule's foot and head heights;
+	 * keep this origin aligned with the physics location.
 	 *
 	 * @return an independently movable snowman visual at the player spawn point
 	 */
@@ -72,6 +74,7 @@ public class Snowman {
 		AmbientLight fill = new AmbientLight();
 		fill.setColor(ColorRGBA.White.mult(0.35f));
 		body.addLight(fill);
+		body.setLocalRotation(new Quaternion().lookAt(Vector3f.UNIT_X, Vector3f.UNIT_Y));
 		body.setLocalTranslation(PLAYER_DEFAULT);
 		return body;
 	}

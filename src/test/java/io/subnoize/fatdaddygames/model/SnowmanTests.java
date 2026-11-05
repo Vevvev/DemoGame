@@ -101,11 +101,15 @@ class SnowmanTests {
 	}
 
 	@Test
-	void facePointsTowardTheCameraAndArmsReachOutFromTheBody() {
+	void facePointsRightTowardTheGolemAndArmsReachOutFromTheBody() {
 		Node body = this.snowman.makeSnowmanBody();
 		Geometry nose = this.part(body, "Carrot nose");
 		Cylinder carrot = (Cylinder) nose.getMesh();
+		body.updateGeometricState();
 
+		assertThat(nose.getWorldRotation().mult(Vector3f.UNIT_Z).distance(Vector3f.UNIT_X))
+				.isCloseTo(0f, within(0.0001f));
+		assertThat(nose.getWorldTranslation().x).isGreaterThan(this.part(body, "Head").getWorldTranslation().x);
 		assertThat(carrot.getRadius2()).isLessThan(carrot.getRadius());
 		assertThat(nose.getLocalRotation().mult(Vector3f.UNIT_Z)).isEqualTo(Vector3f.UNIT_Z);
 		assertThat(nose.getLocalTranslation().z).isGreaterThan(this.part(body, "Left eye").getLocalTranslation().z);
@@ -152,10 +156,15 @@ class SnowmanTests {
 		body.updateGeometricState();
 
 		assertThat(body.getWorldTranslation()).isEqualTo(jumpLocation);
+		assertThat(body.getWorldRotation().mult(Vector3f.UNIT_Z).distance(Vector3f.UNIT_X))
+				.isCloseTo(0f, within(0.0001f));
 		for (int index = 0; index < body.getQuantity(); index++) {
 			Spatial part = body.getChild(index);
-			assertThat(part.getLocalTranslation()).isEqualTo(offsets.get(index));
-			assertThat(part.getWorldTranslation()).isEqualTo(jumpLocation.add(offsets.get(index)));
+			Vector3f offset = offsets.get(index);
+			Vector3f rotatedOffset = new Vector3f(offset.z, offset.y, -offset.x);
+			assertThat(part.getLocalTranslation()).isEqualTo(offset);
+			assertThat(part.getWorldTranslation().distance(jumpLocation.add(rotatedOffset)))
+					.isCloseTo(0f, within(0.0001f));
 		}
 	}
 
