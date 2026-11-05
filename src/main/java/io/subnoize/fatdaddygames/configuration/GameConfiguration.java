@@ -41,10 +41,12 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 	private GameDirector gameDirector;
 	
 	/**
-	 * Starts the native game loop only after Spring has completed singleton creation and
-	 * dependency injection. Starting from {@code @PostConstruct} races the engine thread
-	 * against field injection in {@link MyGameDirector}, allowing {@code simpleInitApp}
-	 * to reach {@code GameControls.setUpKeys()} while required controls are still null.
+	 * Starts the engine only after Spring has completed singleton creation and injection,
+	 * preventing the original controls-null race in {@link MyGameDirector#init()}. Runtime
+	 * AppStateManager and ViewPort references are resolved by that engine-thread callback,
+	 * not published as Spring beans while jME still holds them as null. UI consumers query
+	 * the active settings from this application after jME applies its startup/dialog choices,
+	 * avoiding a stale resolution captured during Spring context creation.
 	 */
 	@EventListener(ApplicationReadyEvent.class)
 	public void startOnApplicationReady() {
@@ -119,9 +121,13 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 		return renderManager;
 	}
 
-	@Bean
-	ViewPort viewPort() {
-		return viewPort;
+	/**
+	 * Returns the initialized render viewport for engine-thread scene setup.
+	 *
+	 * @return runtime viewport, available after jME initialization
+	 */
+	public ViewPort engineViewPort() {
+		return this.viewPort;
 	}
 
 	@Bean
@@ -134,9 +140,15 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 		return context;
 	}
 
-	@Bean
-	AppSettings settings() {
-		return settings;
+	/**
+	 * Returns the active engine settings after jME initialization. Do not publish this value
+	 * as an eager Spring bean: jME may replace it while creating the context or applying the
+	 * settings dialog, and UI consumers must read the final engine resolution on the engine thread.
+	 *
+	 * @return active application settings; null only before jME creates its context
+	 */
+	public AppSettings settings() {
+		return this.settings;
 	}
 
 	@Bean
@@ -193,9 +205,13 @@ public class GameConfiguration extends SimpleApplication implements ActionListen
 		return inputManager;
 	}
 
-	@Bean
-	AppStateManager stateManager() {
-		return stateManager;
+	/**
+	 * Returns jME's initialized state manager for engine-thread game setup.
+	 *
+	 * @return runtime application state manager, available after jME initialization
+	 */
+	public AppStateManager engineStateManager() {
+		return this.stateManager;
 	}
 
 	@Bean

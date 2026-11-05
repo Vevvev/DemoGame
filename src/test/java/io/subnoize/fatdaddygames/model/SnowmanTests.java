@@ -2,8 +2,6 @@ package io.subnoize.fatdaddygames.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
@@ -14,6 +12,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.GhostControl;
@@ -137,8 +136,8 @@ class SnowmanTests {
 	void runningGameLoopMovesEveryPartWithThePhysicsController() {
 		Node body = this.snowman.makeSnowmanBody();
 		CharacterControl player = this.snowman.makeSnowman();
-		GhostControl obstacleGhost = mock(GhostControl.class);
-		given(obstacleGhost.getOverlappingObjects()).willReturn(List.of());
+		GhostControl obstacleGhost = new GhostControl(new BoxCollisionShape(new Vector3f(0.5f, 0.5f, 0.1f)));
+		assertThat(obstacleGhost.getOverlappingObjects()).isEmpty();
 		MyGameDirector director = new MyGameDirector();
 		ReflectionTestUtils.setField(director, "snowmanBody", body);
 		ReflectionTestUtils.setField(director, "player", player);

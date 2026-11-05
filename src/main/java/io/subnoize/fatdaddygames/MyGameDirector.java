@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import com.jme3.anim.AnimComposer;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -20,7 +19,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
@@ -52,16 +50,10 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	private GameConfiguration configuration;
 
 	@Autowired
-	private AppStateManager stateManager;
-
-	@Autowired
 	private Node rootNode;
 
 	@Autowired
 	private Node guiNode;
-
-	@Autowired
-	private ViewPort viewPort;
 
 	private Boolean isLost = false;
 	private int score = 0;
@@ -157,7 +149,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	public void init() {
 
 		this.bulletAppState = new BulletAppState();
-		this.stateManager.attach(this.bulletAppState);
+		this.configuration.engineStateManager().attach(this.bulletAppState);
 		this.bulletAppState.setEnabled(false);
 
 		// Lemur initialize. This is for the user interface.
@@ -224,7 +216,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		// Keep the playable collision box fixed; all panorama elements are visual-only.
 		this.floor.initFloor(this.bulletAppState);
 		this.winterLandscape = new WinterLandscape(
-				this.configuration.assetManager(), this.rootNode, this.viewPort);
+				this.configuration.assetManager(), this.rootNode, this.configuration.engineViewPort());
 	}
 
 	/**
