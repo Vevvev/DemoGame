@@ -11,9 +11,11 @@ import org.junit.jupiter.api.Test;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
@@ -100,5 +102,40 @@ class WinterLandscapeTests {
 				.allSatisfy(location -> assertThat(location.x).isZero());
 		assertThat(world.getChildren()).extracting(spatial -> ((Node) spatial).getQuantity())
 				.containsExactlyElementsOf(originalCounts);
+	}
+
+	@Test
+	void pineTrunksAreVerticalAndScaleAcrossNearAndFarTrees() {
+		Node world = new Node("World");
+		new WinterLandscape(this.assets, world, this.viewPort());
+		Node farLayer = (Node) world.getChild("Distant snowy hills");
+		Node nearLayer = (Node) world.getChild("Nearby snowy pines");
+
+		for (int index = 0; index < 12; index++) {
+			Node farTree = (Node) farLayer.getChild("Distant pine " + index);
+			Node nearTree = (Node) nearLayer.getChild("Near pine " + index);
+			Geometry farTrunk = (Geometry) farTree.getChild(farTree.getName() + " trunk");
+			Geometry nearTrunk = (Geometry) nearTree.getChild(nearTree.getName() + " trunk");
+			farTrunk.updateModelBound();
+			nearTrunk.updateModelBound();
+		}
+		world.updateGeometricState();
+
+		for (int index = 0; index < 12; index++) {
+			Node farTree = (Node) farLayer.getChild("Distant pine " + index);
+			Node nearTree = (Node) nearLayer.getChild("Near pine " + index);
+			BoundingBox farBounds = (BoundingBox) ((Geometry) farTree.getChild(farTree.getName() + " trunk")).getWorldBound();
+			BoundingBox nearBounds = (BoundingBox) ((Geometry) nearTree.getChild(nearTree.getName() + " trunk")).getWorldBound();
+
+			assertThat(farBounds.getYExtent()).isGreaterThan(2f * farBounds.getXExtent());
+			assertThat(farBounds.getYExtent()).isGreaterThan(2f * farBounds.getZExtent());
+			assertThat(nearBounds.getYExtent()).isGreaterThan(2f * nearBounds.getXExtent());
+			assertThat(nearBounds.getYExtent()).isGreaterThan(2f * nearBounds.getZExtent());
+			assertThat(farBounds.getYExtent() / nearBounds.getYExtent()).isCloseTo(0.72f, within(0.0001f));
+			assertThat(farBounds.getXExtent() / nearBounds.getXExtent()).isCloseTo(0.72f, within(0.0001f));
+			assertThat(farBounds.getZExtent() / nearBounds.getZExtent()).isCloseTo(0.72f, within(0.0001f));
+			assertThat(farBounds.getCenter().y - farBounds.getYExtent()).isLessThan(farTree.getWorldTranslation().y);
+			assertThat(nearBounds.getCenter().y - nearBounds.getYExtent()).isLessThan(nearTree.getWorldTranslation().y);
+		}
 	}
 }

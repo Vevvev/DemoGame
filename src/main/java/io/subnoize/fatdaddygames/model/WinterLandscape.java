@@ -3,6 +3,7 @@ package io.subnoize.fatdaddygames.model;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -169,7 +170,9 @@ public final class WinterLandscape {
 		Geometry trunk = new Geometry(name + " trunk", new Cylinder(5, 6, 0.13f, 0.82f, true));
 		trunk.setMaterial(wood);
 		trunk.setLocalTranslation(0f, 0.38f * scale, 0f);
-		trunk.setLocalScale(scale, scale, 1f);
+		// jME cylinders extend along local Z; rotate to scene Y and scale the full trunk with its tree.
+		trunk.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
+		trunk.setLocalScale(scale, scale, scale);
 		tree.attachChild(trunk);
 		for (int tier = 0; tier < 3; tier++) {
 			float tierScale = (1.05f - tier * 0.2f) * scale;
