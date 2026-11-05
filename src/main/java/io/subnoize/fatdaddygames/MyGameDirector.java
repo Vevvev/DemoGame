@@ -20,7 +20,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
@@ -91,7 +90,7 @@ public class MyGameDirector implements GameDirector, ActionListener {
 	private int gameOverPageIndex = 0;
 
 	private CharacterControl player;
-	private Geometry geom;
+	private Node snowmanBody;
 	private BulletAppState bulletAppState;
 
 	private AnimComposer control;
@@ -119,7 +118,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			player.setJumpSpeed(15);
 			player.setFallSpeed(30);
 
-			geom.setLocalTranslation(player.getPhysicsLocation());
+			// Move the shared parent so every snowman part follows the same jump.
+			this.snowmanBody.setLocalTranslation(this.player.getPhysicsLocation());
 
 			obstacleMove(tpf);
 
@@ -166,8 +166,8 @@ public class MyGameDirector implements GameDirector, ActionListener {
 		rootNode.addLight(dl);
 
 		// Creating the player.
-		geom = snowman.makeSnowmanBody();
-		rootNode.attachChild(geom);
+		this.snowmanBody = this.snowman.makeSnowmanBody();
+		this.rootNode.attachChild(this.snowmanBody);
 
 		player = snowman.makeSnowman();
 		bulletAppState.getPhysicsSpace().add(player);
