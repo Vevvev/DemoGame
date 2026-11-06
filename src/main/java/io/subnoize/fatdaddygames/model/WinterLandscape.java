@@ -133,15 +133,19 @@ public final class WinterLandscape {
 			float width = 1.15f + (index % 2) * 0.25f;
 			building.setLocalTranslation(x, -0.82f, -2.7f);
 			this.addBox(building, "House walls " + index, wall, width, 0.8f, 0.16f, 0f, 0f, 0f);
-			Geometry leftRoof = new Geometry("Left snow roof " + index, new Box(width * 0.82f, 0.13f, 0.2f));
+			float roofAngle = 0.55f;
+			float roofHalfLength = width * 0.5f / FastMath.cos(roofAngle);
+			float roofHeight = 0.8f + roofHalfLength * FastMath.sin(roofAngle) + 0.13f * FastMath.cos(roofAngle);
+			// Each half spans wall eave to center ridge, with its lower eave face meeting the wall top.
+			Geometry leftRoof = new Geometry("Left snow roof " + index, new Box(roofHalfLength, 0.13f, 0.2f));
 			leftRoof.setMaterial(snow);
-			leftRoof.setLocalTranslation(-width * 0.38f, 0.82f, 0f);
-			leftRoof.setLocalRotation(new Quaternion().fromAngleAxis(-0.55f, Vector3f.UNIT_Z));
+			leftRoof.setLocalTranslation(-width * 0.5f, roofHeight, 0f);
+			leftRoof.setLocalRotation(new Quaternion().fromAngleAxis(roofAngle, Vector3f.UNIT_Z));
 			building.attachChild(leftRoof);
-			Geometry rightRoof = new Geometry("Right snow roof " + index, new Box(width * 0.82f, 0.13f, 0.2f));
+			Geometry rightRoof = new Geometry("Right snow roof " + index, new Box(roofHalfLength, 0.13f, 0.2f));
 			rightRoof.setMaterial(snow);
-			rightRoof.setLocalTranslation(width * 0.38f, 0.82f, 0f);
-			rightRoof.setLocalRotation(new Quaternion().fromAngleAxis(0.55f, Vector3f.UNIT_Z));
+			rightRoof.setLocalTranslation(width * 0.5f, roofHeight, 0f);
+			rightRoof.setLocalRotation(new Quaternion().fromAngleAxis(-roofAngle, Vector3f.UNIT_Z));
 			building.attachChild(rightRoof);
 			this.addBox(building, "House window " + index, window, 0.25f, 0.31f, 0.035f, width * 0.43f, -0.02f, 0.18f);
 			this.villageLayer.attachChild(building);

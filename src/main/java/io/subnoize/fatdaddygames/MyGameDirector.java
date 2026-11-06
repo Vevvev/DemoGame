@@ -75,6 +75,13 @@ public class MyGameDirector implements GameDirector, ActionListener {
 
 	private Boolean isRunning = false;
 
+	/**
+	 * Keeps a pre-reset player overlap from becoming a replay collision until Bullet's actual
+	 * contact snapshot shows the reset-separated player is no longer overlapping the ghost.
+	 * This is contact-freshness based, not tied to a render-frame count.
+	 */
+	private boolean collisionRefreshPending;
+
 	private String playerName = "";
 	BitmapText hudText;
 	BitmapText keyText;
@@ -125,7 +132,11 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			this.winterLandscape.update(tpf, this.currentGameSpeed(), this.isRunning);
 		}
 
-		if (this.golemShape.getOverlappingObjects().contains(this.player)) {
+		boolean playerOverlapsGhost = this.golemShape.getOverlappingObjects().contains(this.player);
+		if (this.collisionRefreshPending && !playerOverlapsGhost) {
+			this.collisionRefreshPending = false;
+		}
+		if (!this.collisionRefreshPending && playerOverlapsGhost) {
 			this.setRunning(false);
 			this.isLost = true;
 			List<HighScore> scores = this.highScoreServ.recordScore(this.playerName, this.score);
@@ -260,7 +271,9 @@ public class MyGameDirector implements GameDirector, ActionListener {
 			}
 		});
 		showScorePage(0);
+		this.collisionRefreshPending = this.golemShape.getOverlappingObjects().contains(this.player);
 		player.setPhysicsLocation(playerDefault);
+		this.snowmanBody.setLocalTranslation(playerDefault);
 		obstacle.setLocalTranslation(obstacleDefault);
 		control.setCurrentAction("Walk");
 		obstacle.setLocalRotation(obstacleDefaultRotation);

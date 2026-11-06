@@ -13,11 +13,13 @@ import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 
 /**
  * Protects the bounded, visual-only winter panorama without launching a renderer.
@@ -102,6 +104,43 @@ class WinterLandscapeTests {
 				.allSatisfy(location -> assertThat(location.x).isZero());
 		assertThat(world.getChildren()).extracting(spatial -> ((Node) spatial).getQuantity())
 				.containsExactlyElementsOf(originalCounts);
+	}
+
+	@Test
+	void villageRoofPlanesRiseFromWallAlignedEavesToTheCenteredRidge() {
+		Node world = new Node("World");
+		new WinterLandscape(this.assets, world, this.viewPort());
+		Node village = (Node) world.getChild("Snow-roof village");
+		world.updateGeometricState();
+
+		for (int index = 0; index < 6; index++) {
+			Node building = (Node) village.getChild("Snow-roof house " + index);
+			Geometry leftRoof = (Geometry) building.getChild("Left snow roof " + index);
+			Geometry rightRoof = (Geometry) building.getChild("Right snow roof " + index);
+			float leftHalfLength = ((Box) leftRoof.getMesh()).getXExtent();
+			float rightHalfLength = ((Box) rightRoof.getMesh()).getXExtent();
+			float wallTop = building.getWorldTranslation().y + 0.8f;
+
+			Vector3f leftRidge = this.worldPoint(leftRoof, leftHalfLength, 0f);
+			Vector3f leftEave = this.worldPoint(leftRoof, -leftHalfLength, -0.13f);
+			Vector3f rightRidge = this.worldPoint(rightRoof, -rightHalfLength, 0f);
+			Vector3f rightEave = this.worldPoint(rightRoof, rightHalfLength, -0.13f);
+
+			assertThat(leftRidge.y).as("left roof rises toward ridge for house %d", index).isGreaterThan(leftEave.y);
+			assertThat(rightRidge.y).as("right roof rises toward ridge for house %d", index)
+					.isGreaterThan(rightEave.y);
+			assertThat(leftRidge.x).isCloseTo(building.getWorldTranslation().x, within(0.001f));
+			assertThat(rightRidge.x).isCloseTo(building.getWorldTranslation().x, within(0.001f));
+			assertThat(leftEave.y).as("left eave meets wall top for house %d", index)
+					.isCloseTo(wallTop, within(0.001f));
+			assertThat(rightEave.y).as("right eave meets wall top for house %d", index)
+					.isCloseTo(wallTop, within(0.001f));
+			assertThat(leftRidge.y).isCloseTo(rightRidge.y, within(0.001f));
+		}
+	}
+
+	private Vector3f worldPoint(Geometry geometry, float x, float y) {
+		return geometry.localToWorld(new Vector3f(x, y, 0f), new Vector3f());
 	}
 
 	@Test
