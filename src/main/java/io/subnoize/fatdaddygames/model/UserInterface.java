@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
-import com.jme3.system.AppSettings;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
 
@@ -17,9 +16,6 @@ public class UserInterface {
 	
 	@Autowired
 	private GameConfiguration configuration;
-
-	@Autowired
-	private AppSettings settings;
 
 	@Autowired
 	private Node guiNode;
@@ -33,7 +29,7 @@ public class UserInterface {
 		hudText.setSize(configuration.guiFont().getCharSet().getRenderedSize()); // font size
 		hudText.setColor(ColorRGBA.White); // font color
 		hudText.setText("Your score: 0   Highest score: " + highScore); // the text
-		hudText.setLocalTranslation(settings.getWidth() / 2, settings.getHeight(), 0); // position
+		hudText.setLocalTranslation(this.configuration.settings().getWidth() / 2, this.configuration.settings().getHeight(), 0); // position
 		return hudText;
 	}
 
@@ -46,7 +42,7 @@ public class UserInterface {
 		keyText.setSize(configuration.guiFont().getCharSet().getRenderedSize());
 		keyText.setColor(ColorRGBA.White);
 		keyText.setText("Space, W, or up arrow to jump, = to play and pause, Backspace to reset, and ESC to quit."); // text
-		keyText.setLocalTranslation(0, settings.getHeight(), 0);
+		keyText.setLocalTranslation(0, this.configuration.settings().getHeight(), 0);
 		return keyText;
 	}
 	
@@ -59,7 +55,7 @@ public class UserInterface {
 		Container MenuPanel = new Container();
 		guiNode.attachChild(MenuPanel);
 
-		MenuPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+		MenuPanel.setLocalTranslation(this.configuration.settings().getWidth() / 2.9f, this.configuration.settings().getHeight() / 2, 0);
 
 		MenuPanel.addChild(new Label("Welcome to the Snowman Game!"));
 
@@ -74,7 +70,7 @@ public class UserInterface {
 
 		Container settingsPanel = new Container();
 
-		settingsPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+		settingsPanel.setLocalTranslation(this.configuration.settings().getWidth() / 2.9f, this.configuration.settings().getHeight() / 2, 0);
 
 		settingsPanel.addChild(new Label("-Settings-"));
 
@@ -89,7 +85,7 @@ public class UserInterface {
 
 		Container scoresPanel = new Container();
 
-		scoresPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+		scoresPanel.setLocalTranslation(this.configuration.settings().getWidth() / 2.9f, this.configuration.settings().getHeight() / 2, 0);
 
 		return scoresPanel;
 	}
@@ -102,7 +98,7 @@ public class UserInterface {
 
 		Container gameOverPanel = new Container();
 
-		gameOverPanel.setLocalTranslation(settings.getWidth() / 2.9f, settings.getHeight() / 2, 0);
+		gameOverPanel.setLocalTranslation(this.configuration.settings().getWidth() / 2.9f, this.configuration.settings().getHeight() / 2, 0);
 
 		return gameOverPanel;
 	}
@@ -116,7 +112,7 @@ public class UserInterface {
 	 */
 	public void fitLeaderboardPanel(Container leaderboardPanel) {
 		float panelHeight = leaderboardPanel.getPreferredSize().y;
-		float centeredY = (this.settings.getHeight() + panelHeight) / 2f;
+		float centeredY = (this.configuration.settings().getHeight() + panelHeight) / 2f;
 		leaderboardPanel.setLocalTranslation(leaderboardPanel.getLocalTranslation().x, centeredY, 0);
 	}
 	

@@ -23,6 +23,7 @@ import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.Label;
 
+import io.subnoize.fatdaddygames.configuration.GameConfiguration;
 import io.subnoize.fatdaddygames.model.HighScore;
 import io.subnoize.fatdaddygames.model.UserInterface;
 import io.subnoize.fatdaddygames.service.HighScoreService;
@@ -57,7 +58,7 @@ class MyGameDirectorUiTests {
 		UserInterface userInterface = new UserInterface();
 		AppSettings settings = new AppSettings(true);
 		settings.setResolution(640, 480);
-		ReflectionTestUtils.setField(userInterface, "settings", settings);
+		ReflectionTestUtils.setField(userInterface, "configuration", configuration(settings));
 		ReflectionTestUtils.setField(director, "userI", userInterface);
 		Container scoreMenu = new Container();
 		ReflectionTestUtils.setField(director, "scoreMenu", scoreMenu);
@@ -88,7 +89,7 @@ class MyGameDirectorUiTests {
 		UserInterface userInterface = new UserInterface();
 		AppSettings settings = new AppSettings(true);
 		settings.setResolution(640, 480);
-		ReflectionTestUtils.setField(userInterface, "settings", settings);
+		ReflectionTestUtils.setField(userInterface, "configuration", configuration(settings));
 		ReflectionTestUtils.setField(userInterface, "guiNode", guiNode);
 		ReflectionTestUtils.setField(director, "userI", userInterface);
 		Container gameOverMenu = new Container();
@@ -118,7 +119,7 @@ class MyGameDirectorUiTests {
 			settings.setResolution(viewport[0], viewport[1]);
 			Node guiNode = new Node();
 			UserInterface userInterface = new UserInterface();
-			ReflectionTestUtils.setField(userInterface, "settings", settings);
+			ReflectionTestUtils.setField(userInterface, "configuration", configuration(settings));
 			ReflectionTestUtils.setField(userInterface, "guiNode", guiNode);
 			Container gameOverMenu = userInterface.initGameOver();
 			gameOverMenu.addChild(new Label("Game over... Your score is 7"));
@@ -149,7 +150,7 @@ class MyGameDirectorUiTests {
 			settings.setResolution(viewport[0], viewport[1]);
 			Node guiNode = new Node();
 			UserInterface userInterface = new UserInterface();
-			ReflectionTestUtils.setField(userInterface, "settings", settings);
+			ReflectionTestUtils.setField(userInterface, "configuration", configuration(settings));
 			ReflectionTestUtils.setField(userInterface, "guiNode", guiNode);
 			HighScoreServiceStub service = new HighScoreServiceStub(23);
 			MyGameDirector director = director(service, guiNode);
@@ -197,6 +198,12 @@ class MyGameDirectorUiTests {
 		assertThat(position.y).as("top bound at %dx%d", width, height).isLessThanOrEqualTo(height - 20f);
 		assertThat(position.y - preferredSize.y).as("bottom bound at %dx%d", width, height)
 				.isGreaterThanOrEqualTo(20f);
+	}
+
+	private static GameConfiguration configuration(AppSettings settings) {
+		GameConfiguration configuration = new GameConfiguration();
+		configuration.setSettings(settings);
+		return configuration;
 	}
 
 	private static MyGameDirector director(HighScoreService service, Node guiNode) {
